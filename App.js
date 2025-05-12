@@ -3,19 +3,19 @@ import React, { useEffect, useState } from "react";
 import { LogBox } from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import Home from './screens/Home'; // Import Home screen
-import StartScreen from "./screens/StartScreen";
+import Home from './screens/Home';
+import AppEntry from "./screens/AppEntry";
 import MATCHINGSCREEN1 from "./screens/MATCHINGSCREEN1";
 import PROFILESCREEN1 from "./screens/PROFILESCREEN1";
 import CHATSCREEN1 from "./screens/CHATSCREEN1";
 import MENTORSCREEN2 from "./screens/MENTORSCREEN2";
 import MENTORSCREEN3 from "./screens/MENTORSCREEN3";
-import Welcome from "./screens/Welcome";
+import MenteeMentorSelector from "./screens/MenteeMentorSelector";
 import About2 from "./screens/About2";
 import MENTORPROFILE from "./screens/MENTORPROFILE";
 import About4 from "./screens/About4";
-import LoginAccount from "./screens/LoginAccount";
-import CreateAccount from "./screens/CreateAccount";
+import Login from "./screens/Login";
+import SignUp from "./screens/SignUp";
 import About1 from "./screens/About1";
 import About3 from "./screens/About3";
 import ResetMatches from "./screens/ResetMatches"
@@ -24,6 +24,8 @@ import { IconRegistry, ApplicationProvider } from "@ui-kitten/components";
 import * as eva from "@eva-design/eva";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { initDemo } from "./demo/demo"
+import MessageInbox from "./screens/MessageInbox";
+import DirectMessage from "./screens/DirectMessage";
 
 
 const App = () => {
@@ -87,12 +89,12 @@ const App = () => {
         <NavigationContainer>
           {hideSplashScreen ? (
             <Stack.Navigator
-              initialRouteName="StartScreen"
+              initialRouteName="AppEntry"
               screenOptions={{ headerShown: false }}
             >
               <Stack.Screen
-                name="StartScreen"
-                component={StartScreen}
+                name="AppEntry"
+                component={AppEntry}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
@@ -126,8 +128,8 @@ const App = () => {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="Welcome"
-                component={Welcome}
+                name="MenteeMentorSelector"
+                component={MenteeMentorSelector}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
@@ -146,13 +148,13 @@ const App = () => {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="LoginAccount"
-                component={LoginAccount}
+                name="Login"
+                component={Login}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="CreateAccount"
-                component={CreateAccount}
+                name="SignUp"
+                component={SignUp}
                 options={{ headerShown: false }}
               />
               <Stack.Screen
@@ -169,6 +171,16 @@ const App = () => {
                 name="ResetMatches"
                 component={ResetMatches}
                 options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="MessageInbox"
+                component={MessageInbox}
+                options={{ headerShown: true }}
+              />
+              <Stack.Screen
+                name="DirectMessage"
+                component={DirectMessage}
+                options={{ headerShown: true }}
               />
             </Stack.Navigator>
           ) : null}

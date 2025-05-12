@@ -38,10 +38,15 @@ const MENTORSCREEN3 = ({ route }) => {
     await displayMatches(menteeID, "Rejected"); // Refresh matches after denial
   };
 
-  const handleSendMessage = () => {
-    console.log("Message button clicked");
-    // Navigate to the messaging screen or perform message action
+  const handleSendMessage = (matchedUser) => {
+    console.log("Navigating to chat with:", matchedUser.name);
+    navigation.navigate("ChatRoom", {
+      currentUserId: uid,
+      otherUserId: matchedUser.uid,
+      otherUserName: matchedUser.name,
+    });
   };
+
   
   const displayMatches = async (menteeID = null, state = null) => {
     console.log(matches);

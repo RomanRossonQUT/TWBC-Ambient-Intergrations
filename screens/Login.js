@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../firebaseConfig'
 
 
-const LoginAccount = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -42,7 +42,7 @@ const LoginAccount = () => {
 
         // navigate to next screen
         //navigation.navigate("Home")
-        navigation.navigate("Welcome");
+        navigation.navigate("MenteeMentorSelector");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -56,7 +56,6 @@ const LoginAccount = () => {
       <View style={[styles.loginAccount, styles.loginAccountFlexBox]}>
         <Pressable
           style={styles.header1}
-          onPress={() => navigation.navigate("StartScreen")}
         >
           <Image
             style={styles.icon}
@@ -102,7 +101,6 @@ const LoginAccount = () => {
         </View>
         <Pressable
           style={[styles.buttonPrimary, styles.loginSectionSpaceBlock]}
-          //onPress={() => navigation.navigate("Welcome")}
           onPress={handleLogin}
         >
           <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>Login</Text>
@@ -114,7 +112,7 @@ const LoginAccount = () => {
           type="clear"
           color="#ea9bbf"
           titleStyle={styles.dontHaveAnBtn}
-          onPress={() => navigation.navigate("CreateAccount")}
+          onPress={() => navigation.navigate("SignUp")}
           containerStyle={styles.dontHaveAnBtn1}
           buttonStyle={styles.dontHaveAnBtn2}
         />
@@ -211,4 +209,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginAccount;
+export default Login;

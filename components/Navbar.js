@@ -16,7 +16,7 @@ const Navbar = () => {
       <View style={styles.navbar}>
         <Pressable
           style={[styles.navButton, isActive('Home') && styles.activeButton]}
-          onPress={() => navigation.navigate('Home', {uid, pid, type})}
+          onPress={() => navigation.navigate('Home', {uid, pid, type})} 
         >
           <Icon name="home" size={24} color={isActive('Home') ? '#ffb6c1' : '#fff'} />
         </Pressable>
@@ -50,10 +50,10 @@ const Navbar = () => {
           <Icon name="users" size={24} color={isActive('MATCHINGSCREEN1') ? '#ffb6c1' : '#fff'} />
         </Pressable>
         <Pressable
-          style={[styles.navButton, isActive('MENTORSCREEN3') && styles.activeButton]}
-          onPress={() => navigation.navigate('MENTORSCREEN3', {uid, pid, type})}
+          style={[styles.navButton, isActive('MessageInbox') && styles.activeButton]}
+          onPress={() => navigation.navigate('MessageInbox', { uid, pid, type })}
         >
-          <Icon name="comments" size={24} color={isActive('MENTORSCREEN3') ? '#ffb6c1' : '#fff'} />
+          <Icon name="comments" size={24} color={isActive('MessageInbox') ? '#ffb6c1' : '#fff'} />
         </Pressable>
         <Pressable
           style={[styles.navButton, isActive('PROFILESCREEN1') && styles.activeButton]}
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   activeButton: {
-    backgroundColor: '#ffe4e1', // Optional lighter pink background for active button
+    backgroundColor: '#ffe4e1',
     borderRadius: 10,
   },
 });

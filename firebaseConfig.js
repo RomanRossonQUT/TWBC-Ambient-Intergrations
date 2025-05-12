@@ -46,7 +46,8 @@ const auth = initializeAuth(app, {
 const db = getFirestore(app);
 const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null); //pretty sure this does nothing lol
 
-console.log("hi")
+// Log that Firebase has been initialized with service account
+console.log("Firebase initialized with service account:", serviceAccount.project_id);
 
 /* ---- code examples ----*/
 

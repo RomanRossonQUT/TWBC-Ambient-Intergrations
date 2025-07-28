@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 
-const StartScreen = () => {
+const AppEntry = () => {
   const navigation = useNavigation();
 
   return (
@@ -25,14 +25,14 @@ const StartScreen = () => {
           </Text>
         </View>
         <Pressable
-          style={[styles.buttonPrimary, styles.buttonFlexBox]}
-          onPress={() => navigation.navigate("LoginAccount")}
+          style={[styles.buttonPrimary1, styles.buttonFlexBox]}
+          onPress={() => navigation.navigate("Login")}
         >
           <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>Login</Text>
         </Pressable>
         <Pressable
           style={[styles.buttonPrimary1, styles.buttonFlexBox]}
-          onPress={() => navigation.navigate("CreateAccount")}
+          onPress={() => navigation.navigate("SignUp")}
         >
           <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>
             Sign Up
@@ -108,4 +108,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StartScreen;
+export default AppEntry;

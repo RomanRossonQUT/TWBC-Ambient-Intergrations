@@ -11,10 +11,10 @@ const screensToCheck = [
     'About1.js',
     'About2.js',
     'About3.js',
-    'CreateAccount.js',
-    'LoginAccount.js',
-    'StartScreen.js',
-    'Welcome.js'
+    'SignUp.js',
+    'Login.js',
+    'AppEntry.js',
+    'MenteeMentorSelector.js'
 ];
 
 const coreFilesCheck = [

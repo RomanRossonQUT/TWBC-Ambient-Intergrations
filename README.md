@@ -21,13 +21,7 @@ Contact details have been provided in the handover document for each team member
 **Note:** Both the PC and phone being used must be on the same Wi-Fi network for this to work.
 
 # Credits
-2025 Capstone Team:
-Roman Rosson,
-George Dobson,
-Timeus Tong,
-Allan Li
-
-2024 Capstone Team: 
+Team: 
 Katelyn Beresford, 
 Ivana Wolfgramm,
 Reginald Wardleworth,

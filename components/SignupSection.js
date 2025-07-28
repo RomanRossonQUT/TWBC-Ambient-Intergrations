@@ -214,7 +214,7 @@ const SignupSection = ({ userID, profileID, profileType }) => {
         onChangeText={setCountry}
       />
       <Complete
-        onButtonPrimaryPress={() => navigation.navigate("Welcome")}
+        onButtonPrimaryPress={() => navigation.navigate("MenteeMentorSelector")}
         onButtonPrimaryPress1={() => saveForm()}
         viewDetails="Continue"
       />

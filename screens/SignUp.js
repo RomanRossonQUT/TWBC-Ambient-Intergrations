@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import { TextInput as RNPTextInput } from "react-native-paper";
-import { Button } from "@rneui/themed";
+import { Button } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc} from "firebase/firestore"
 import { db, auth } from '../firebaseConfig'
 
-const CreateAccount = () => {
+const SignUp = () => {
   // declare values needed to create a user account
   const [email, setEmail] = useState('');
   const [password1, setPassword1] = useState('');
@@ -85,7 +85,6 @@ const CreateAccount = () => {
       <View style={[styles.createAccount, styles.createAccountFlexBox]}>
         <Pressable
           style={styles.header1}
-          onPress={() => navigation.navigate("StartScreen")}
         >
           <Image
             style={styles.icon}
@@ -158,7 +157,7 @@ const CreateAccount = () => {
           type="clear"
           color="#ea9bbf"
           titleStyle={styles.alreadyHaveAnBtn}
-          onPress={() => navigation.navigate("LoginAccount")}
+          onPress={() => navigation.navigate("Login")}
           containerStyle={styles.alreadyHaveAnBtn1}
           buttonStyle={styles.alreadyHaveAnBtn2}
         />
@@ -254,4 +253,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateAccount;
+export default SignUp;

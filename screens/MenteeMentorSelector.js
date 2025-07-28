@@ -7,7 +7,7 @@ import { doc, setDoc, getDocs, collection, query, where, getDoc, updateDoc} from
 import { db, auth } from '../firebaseConfig';
 
 
-const Welcome = () => {
+const MenteeMentorSelector = () => {
   const [uid, setUID] = useState(''); // user id
 
   const navigation = useNavigation();
@@ -112,7 +112,6 @@ const Welcome = () => {
       <View style={styles.welcome}>
         <Pressable
           style={styles.header1}
-          onPress={() => navigation.navigate("StartScreen")}
         >
           <Image
             style={styles.icon}
@@ -127,7 +126,7 @@ const Welcome = () => {
               style={styles.throughTheWomens}
             >{`Through The Women’s Business School, you can receive education from a team of high-level experts and leaders and get mentoring, advice and access to successful Women in Business from across a range of industries. \n\n`}</Text>
             <Text style={[styles.letsGetStarted, styles.menteeTypo]}>
-              Let's get started!
+              Which account would you like to login to?
             </Text>
           </Text>
         </View>
@@ -142,7 +141,7 @@ const Welcome = () => {
           </Text>
         </Pressable>
         <Pressable
-          style={[styles.buttonPrimary1, styles.buttonFlexBox]}
+          style={[styles.buttonPrimary, styles.buttonFlexBox]}
           //onPress={() => navigation.navigate("About1")}
           onPress={() => createProfile("Mentor")}
         >
@@ -231,4 +230,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Welcome;
+export default MenteeMentorSelector;

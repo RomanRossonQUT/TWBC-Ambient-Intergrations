@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { TextInput as RNPTextInput } from "react-native-paper";
-import { Button } from "@rneui/themed";
+import { Button } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../firebaseConfig'

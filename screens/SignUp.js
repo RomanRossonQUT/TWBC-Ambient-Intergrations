@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import { TextInput as RNPTextInput } from "react-native-paper";
-import { Button } from "@rneui/themed";
+import { Button } from 'react-native-paper';
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc} from "firebase/firestore"

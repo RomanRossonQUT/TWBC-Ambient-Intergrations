@@ -29,9 +29,8 @@ import DirectMessage from "./screens/DirectMessage";
 
 
 const App = () => {
-
   useEffect(() => {
-    // check if the app is in demo mode
+
     var demoMode = require('./demo/toggleDemoMode.json');
     console.log("Demo Mode Toggled:", demoMode["demoMode"]);
     if (demoMode["demoMode"]) {

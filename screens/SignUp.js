@@ -9,7 +9,6 @@ import { doc, setDoc} from "firebase/firestore"
 import { db, auth } from '../firebaseConfig'
 
 const SignUp = () => {
-  // declare values needed to create a user account
   const [email, setEmail] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
@@ -35,9 +34,9 @@ const SignUp = () => {
         menteeID: null,
         mentorID: null
       });
-      console.log("saved?");
+      console.log("SUCCESS: User saved to Firestore.");
     } catch (error) {
-        console.error('error saving account to db:', error);
+        console.error('ERROR: There was an issue saving account to database:', error);
     }
   }
 

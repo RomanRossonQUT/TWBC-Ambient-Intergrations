@@ -7,7 +7,6 @@ import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../firebaseConfig'
 
-
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,19 +28,15 @@ const Login = () => {
     removeWhiteSpace(password);
     if (checkStringEmpty(email) == true || checkStringEmpty(password) == true)
       {
-        console.error("email or password is empty");
-        error("email or password is empty");
+        console.error("ERROR: User has submitted an empty email or password.");
+        error("ERROR: User has submitted an empty email or password.");
       }
     console.log(email)
     console.log(password)
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        //signed in
         const user = userCredential.user;
         console.log(user);
-
-        // navigate to next screen
-        //navigation.navigate("Home")
         navigation.navigate("MenteeMentorSelector");
       })
       .catch((error) => {

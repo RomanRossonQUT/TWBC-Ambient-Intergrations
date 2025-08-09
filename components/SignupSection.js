@@ -103,7 +103,7 @@ const SignupSection = ({ userID, profileID, profileType }) => {
   const [currentRole, setCurrentRole] = useState('');
   const [country, setCountry] = useState('');
 
-  console.log(userID, profileID, profileType);
+  //console.log(userID, profileID, profileType);
 
   const navigation = useNavigation();
 

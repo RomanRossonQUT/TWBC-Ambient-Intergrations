@@ -1,118 +1,205 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { TextInput as RNPTextInput } from "react-native-paper";
-import { Button } from 'react-native-paper';
+import { TextInput as RNPTextInput, Button, HelperText, Snackbar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { db, auth } from '../firebaseConfig'
+import { auth } from "../firebaseConfig";
+
+const PINK = "#ED469A";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [snack, setSnack] = useState({ visible: false, msg: "" });
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
-  const checkStringEmpty = async (string) => {
-    if (string == null || string == "") {
-      return true
+  const showSnack = (msg) => setSnack({ visible: true, msg });
+  const hideSnack = () => setSnack({ visible: false, msg: "" });
+
+  const validate = () => {
+    let ok = true;
+    setEmailError("");
+    setPasswordError("");
+
+    const emailTrim = email.trim();
+    const passTrim = password.trim();
+
+    // simple email check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailTrim) {
+      setEmailError("Email is required");
+      ok = false;
+    } else if (!emailRegex.test(emailTrim)) {
+      setEmailError("Enter a valid email (e.g. name@domain.com)");
+      ok = false;
     }
-    return false
-  }
-  const removeWhiteSpace = async (string) => {
-    return string.trimEnd();
-  }
-  
-  const handleLogin = () => {
-    removeWhiteSpace(email);
-    removeWhiteSpace(password);
-    if (checkStringEmpty(email) == true || checkStringEmpty(password) == true)
-      {
-        console.error("ERROR: User has submitted an empty email or password.");
-        error("ERROR: User has submitted an empty email or password.");
+
+    if (!passTrim) {
+      setPasswordError("Password is required");
+      ok = false;
+    } else if (passTrim.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      ok = false;
+    }
+
+    return ok;
+  };
+
+  const handleLogin = async () => {
+    if (!validate()) {
+      showSnack("Please fix the highlighted fields.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const emailTrim = email.trim();
+      const passTrim = password.trim();
+      await signInWithEmailAndPassword(auth, emailTrim, passTrim);
+      navigation.navigate("MenteeMentorSelector");
+    } catch (e) {
+      // Friendly Firebase error messages
+      let msg = "Unable to sign in. Please try again.";
+      switch (e.code) {
+        case "auth/invalid-email":
+          msg = "That email address is invalid.";
+          setEmailError("Invalid email address");
+          break;
+        case "auth/user-disabled":
+          msg = "This account has been disabled.";
+          break;
+        case "auth/user-not-found":
+          msg = "No account found for that email.";
+          setEmailError("No account found for this email");
+          break;
+        case "auth/wrong-password":
+          msg = "Incorrect password.";
+          setPasswordError("Incorrect password");
+          break;
+        case "auth/too-many-requests":
+          msg = "Too many attempts. Please wait and try again.";
+          break;
       }
-    console.log(email)
-    console.log(password)
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log(user);
-        navigation.navigate("MenteeMentorSelector");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(`Error ${errorCode}: ${errorMessage}`);
-      })
-  }
+      showSnack(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={[styles.loginAccount, styles.loginAccountFlexBox]}>
-        <Pressable
-          style={styles.header1}
-        >
-          <Image
-            style={styles.icon}
-            contentFit="cover"
-            source={require("../assets/header-11.png")}
-          />
-        </Pressable>
-        <View style={[styles.info, styles.infoCommon]}>
-          <Text style={[styles.loginToAccount, styles.loginToAccountFlexBox]}>
-            Login to Account
-          </Text>
-          <Text style={[styles.joinAndConnect, styles.loginToAccountFlexBox]}>
-            Join and connect with mentors now!
-          </Text>
+    <>
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <View style={[styles.loginAccount, styles.loginAccountFlexBox]}>
+          <Pressable style={styles.header1}>
+            <Image
+              style={styles.icon}
+              contentFit="cover"
+              source={require("../assets/header-11.png")}
+            />
+          </Pressable>
+
+          <View style={[styles.info, styles.infoCommon]}>
+            <Text style={[styles.loginToAccount, styles.loginToAccountFlexBox]}>
+              Login to Account
+            </Text>
+            <Text style={[styles.joinAndConnect, styles.loginToAccountFlexBox]}>
+              Join and connect with mentors now!
+            </Text>
+          </View>
+
+          <View style={[styles.loginSection, styles.loginSectionSpaceBlock]}>
+            <RNPTextInput
+              style={styles.form}
+              label="Email"
+              placeholder="Email@address.com"
+              mode="outlined"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              returnKeyType="next"
+              placeholderTextColor="#9eaab6"
+              error={!!emailError}
+              theme={{
+                fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
+                colors: {
+                  text: "#191919",
+                  primary: PINK,      // focus/active outline
+                  error: "#d32f2f",   // error outline
+                },
+              }}
+              value={email}
+              onChangeText={(t) => {
+                setEmail(t);
+                if (emailError) setEmailError("");
+              }}
+            />
+            <HelperText type="error" visible={!!emailError}>
+              {emailError}
+            </HelperText>
+
+            <RNPTextInput
+              style={styles.form}
+              label="Password"
+              placeholder="Enter Password"
+              mode="outlined"
+              placeholderTextColor="#9eaab6"
+              secureTextEntry
+              error={!!passwordError}
+              theme={{
+                fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
+                colors: {
+                  text: "#191919",
+                  primary: PINK,
+                  error: "#d32f2f",
+                },
+              }}
+              value={password}
+              onChangeText={(t) => {
+                setPassword(t);
+                if (passwordError) setPasswordError("");
+              }}
+            />
+            <HelperText type="error" visible={!!passwordError}>
+              {passwordError}
+            </HelperText>
+          </View>
+
+          <Pressable
+            style={[styles.buttonPrimary, styles.loginSectionSpaceBlock, loading && { opacity: 0.7 }]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>
+              {loading ? "Logging in..." : "Login"}
+            </Text>
+          </Pressable>
+
+          <Button
+            color="#ea9bbf"
+            onPress={() => navigation.navigate("SignUp")}
+            style={styles.dontHaveAnBtn1}
+            labelStyle={styles.dontHaveAnBtn}
+          >
+            Don&apos;t have an account?
+          </Button>
         </View>
-        <View style={[styles.loginSection, styles.loginSectionSpaceBlock]}>
-          <RNPTextInput
-            style={styles.form}
-            label="Email"
-            placeholder="Email@address.com"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <RNPTextInput
-            style={styles.form}
-            label="Password"
-            placeholder="Enter Password"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-        <Pressable
-          style={[styles.buttonPrimary, styles.loginSectionSpaceBlock]}
-          onPress={handleLogin}
-        >
-          <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>Login</Text>
-        </Pressable>
-        <Button
-          title="Don't have an account?"
-          radius="0"
-          iconPosition="left"
-          type="clear"
-          color="#ea9bbf"
-          titleStyle={styles.dontHaveAnBtn}
-          onPress={() => navigation.navigate("SignUp")}
-          containerStyle={styles.dontHaveAnBtn1}
-          buttonStyle={styles.dontHaveAnBtn2}
-        />
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      <Snackbar
+        visible={snack.visible}
+        onDismiss={hideSnack}
+        duration={3500}
+        action={{ label: "OK", onPress: hideSnack }}
+      >
+        {snack.msg}
+      </Snackbar>
+    </>
   );
 };
 
@@ -129,77 +216,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: "Raleway-SemiBold",
   },
-  dontHaveAnBtn1: {
-    position: "relative",
-  },
-  dontHaveAnBtn2: {},
-  loginAccountFlexBox: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  infoCommon: {
-    gap: 20,
-    overflow: "hidden",
-  },
-  loginToAccountFlexBox: {
-    textAlign: "left",
-    color: "#000",
-    alignSelf: "stretch",
-  },
-  loginSectionSpaceBlock: {
-    paddingVertical: 10,
-    paddingHorizontal: 0,
-    alignSelf: "stretch",
-  },
-  viewDetailsTypo: {
-    fontFamily: "Raleway-Bold",
-    fontWeight: "700",
-  },
-  icon: {
-    height: "100%",
-    width: "100%",
-  },
-  header1: {
-    width: 330,
-    height: 270,
-  },
-  loginToAccount: {
-    fontSize: 32,
-    fontFamily: "Raleway-Bold",
-    fontWeight: "700",
-  },
-  joinAndConnect: {
-    fontFamily: "Raleway-Regular",
-    fontSize: 18,
-  },
-  info: {
-    alignSelf: "stretch",
-  },
-  form: {
-    alignSelf: "stretch",
-  },
-  loginSection: {
-    gap: 20,
-    overflow: "hidden",
-  },
-  viewDetails: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 18,
-  },
+  dontHaveAnBtn1: { marginTop: 10 },
+  loginAccountFlexBox: { justifyContent: "center", alignItems: "center" },
+  infoCommon: { gap: 20, overflow: "hidden" },
+  loginToAccountFlexBox: { textAlign: "left", color: "#000", alignSelf: "stretch" },
+  loginSectionSpaceBlock: { paddingVertical: 10, paddingHorizontal: 0, alignSelf: "stretch" },
+  viewDetailsTypo: { fontFamily: "Raleway-Bold", fontWeight: "700" },
+  icon: { height: "100%", width: "100%" },
+  header1: { width: 330, height: 270 },
+  loginToAccount: { fontSize: 32, fontFamily: "Raleway-Bold", fontWeight: "700" },
+  joinAndConnect: { fontFamily: "Raleway-Regular", fontSize: 18 },
+  info: { alignSelf: "stretch" },
+  form: { alignSelf: "stretch" },
+  loginSection: { gap: 6, overflow: "hidden" }, // tighter to fit helper text
+  viewDetails: { color: "#fff", textAlign: "center", fontSize: 18 },
   buttonPrimary: {
     borderRadius: 5,
     backgroundColor: "#ed469a",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 12,
   },
   loginAccount: {
     flex: 1,
     paddingHorizontal: 30,
     paddingTop: 30,
-    paddingVertical: 0,
-    gap: 30,
+    gap: 20,
     width: "100%",
   },
 });

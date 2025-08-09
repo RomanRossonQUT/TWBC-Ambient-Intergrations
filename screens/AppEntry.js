@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
+import 'react-native-gesture-handler';
+
 
 const AppEntry = () => {
   const navigation = useNavigation();

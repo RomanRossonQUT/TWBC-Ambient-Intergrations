@@ -27,6 +27,11 @@ import { initDemo } from "./demo/demo"
 import MessageInbox from "./screens/MessageInbox";
 import DirectMessage from "./screens/DirectMessage";
 
+import ForumsHome from "./screens/ForumsHome";
+import ThreadList from "./screens/ThreadList";
+import ThreadDetail from "./screens/ThreadDetail";
+import NewThread from "./screens/NewThread";
+
 
 const App = () => {
   useEffect(() => {
@@ -180,6 +185,26 @@ const App = () => {
                 name="DirectMessage"
                 component={DirectMessage}
                 options={{ headerShown: true }}
+              />
+              <Stack.Screen
+                name="ForumsHome"
+                component={ForumsHome}
+                options={{ headerShown: true, title: "Forums" }}
+              />
+              <Stack.Screen
+                name="ThreadList"
+                component={ThreadList}
+                options={{ headerShown: true, title: "Threads" }}
+              />
+              <Stack.Screen
+                name="ThreadDetail"
+                component={ThreadDetail}
+                options={{ headerShown: true, title: "Thread" }}
+              />
+              <Stack.Screen
+                name="NewThread"
+                component={NewThread}
+                options={{ headerShown: true, title: "New Thread" }}
               />
             </Stack.Navigator>
           ) : null}

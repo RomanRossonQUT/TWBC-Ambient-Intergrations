@@ -26,7 +26,7 @@ const PINK_BUBBLE = "#FFB6C1";
 const PINK_PRIMARY = "#ED469A";
 const LIGHT_GRAY = "#f0f0f0";
 const GRAY = "#999";
-const TIMESTAMP_GAP_MINUTES = 15;
+const TIMESTAMP_GAP_MINUTES = 5;
 
 export default function DirectMessage({ route }) {
   const { currentUserId, otherUserId, otherUserName } = route.params;

@@ -8,11 +8,18 @@ import {
   TextInput,
   Pressable,
 } from "react-native";
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  query,
+  where,
+  doc,
+} from "firebase/firestore";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { db } from "../firebaseConfig";
-import Navbar from "../components/Navbar"; // ⬅️ show the bottom bar
+import Navbar from "../components/Navbar";
 
 const PINK = "#ed469a";
 const PINK_LIGHT = "#ffe4f0";
@@ -30,39 +37,60 @@ const MessageInbox = () => {
   const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
-    const fetchOrCreateConnections = async () => {
+    const fetchConnections = async () => {
       if (!uid) return;
-      const connectionsRef = collection(db, "Connections");
-      const q1 = query(connectionsRef, where("userIds", "array-contains", uid));
-      const snap = await getDocs(q1);
 
-      if (snap.empty) {
-        // seed one so screen isn’t blank the first time
-        const dummyUserId = "test_user_2";
-        const dummyUserName = "Test User 2";
-        await addDoc(connectionsRef, {
-          userIds: [uid, dummyUserId],
-          userNames: { [uid]: "You", [dummyUserId]: dummyUserName },
-          createdAt: new Date(),
+      try {
+        // 🔹 Get all connection docs where the current user is involved
+        const connQuery = query(
+          collection(db, "Connections"),
+          where("userIds", "array-contains", uid)
+        );
+        const connSnapshot = await getDocs(connQuery);
+
+        if (connSnapshot.empty) {
+          setConnections([]);
+          return;
+        }
+
+        const connectedUserIds = [];
+        const connectedUserNames = {};
+
+        connSnapshot.docs.forEach((docSnap) => {
+          const data = docSnap.data();
+          const otherId = data.userIds.find((id) => id !== uid);
+          if (otherId) {
+            connectedUserIds.push(otherId);
+            connectedUserNames[otherId] = data.userNames?.[otherId] || "";
+          }
         });
-        return fetchOrCreateConnections();
+
+        // 🔹 Fetch user profiles for connected users
+        const usersSnapshot = await getDocs(collection(db, "Users"));
+        const allUsers = usersSnapshot.docs.map((u) => ({
+          id: u.id,
+          ...u.data(),
+        }));
+
+        const connectedUsers = allUsers
+          .filter((u) => connectedUserIds.includes(u.id))
+          .map((u) => ({
+            id: u.id,
+            name:
+              connectedUserNames[u.id] ||
+              `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+              "Unknown User",
+            lastMessage: "Say hi 👋",
+            unreadCount: 0,
+          }));
+
+        setConnections(connectedUsers);
+      } catch (error) {
+        console.error("Error fetching inbox:", error);
       }
-
-      const users = [];
-      snap.forEach((d) => {
-        const data = d.data();
-        const otherUserId = data.userIds.find((id) => id !== uid);
-        users.push({
-          id: otherUserId,
-          name: data.userNames?.[otherUserId] || "User",
-          lastMessage: "Say hi 👋", // placeholder (kept as requested)
-          unreadCount: 0,
-        });
-      });
-      setConnections(users);
     };
 
-    fetchOrCreateConnections();
+    fetchConnections();
   }, [uid]);
 
   const visible = useMemo(() => {
@@ -126,18 +154,21 @@ const MessageInbox = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Messages</Text>
-        <Pressable style={styles.headerBtn} onPress={() => {}}>
-          <Icon name="magnify" size={22} color={PINK} />
+        <Pressable
+          style={styles.headerBtn}
+          onPress={() => navigation.navigate("DiscoverConnections", { uid })}
+        >
+          <Icon name="account-plus" size={22} color={PINK} />
         </Pressable>
       </View>
 
-      {/* Search */}
+      {/* Search Bar */}
       <View style={styles.searchBar}>
         <Icon name="magnify" size={20} color={GRAY_TEXT} />
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder="Search"
+          placeholder="Search conversations"
           placeholderTextColor="#9aa0a6"
           style={styles.searchInput}
         />
@@ -148,7 +179,7 @@ const MessageInbox = () => {
         ) : null}
       </View>
 
-      {/* Filter pills (visual only for now) */}
+      {/* Filter Pills */}
       <View style={styles.pills}>
         {["All", "Personal", "Work", "Groups"].map((p) => (
           <Pressable
@@ -156,20 +187,25 @@ const MessageInbox = () => {
             onPress={() => setActiveFilter(p)}
             style={[styles.pill, activeFilter === p && styles.pillActive]}
           >
-            <Text style={[styles.pillText, activeFilter === p && styles.pillTextActive]}>
+            <Text
+              style={[
+                styles.pillText,
+                activeFilter === p && styles.pillTextActive,
+              ]}
+            >
               {p}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      {/* List */}
+      {/* Chat List */}
       <FlatList
         data={visible}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }} // space for navbar
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96 }}
         ListEmptyComponent={
           <View style={{ padding: 24, alignItems: "center" }}>
             <Text style={{ color: GRAY_TEXT }}>No conversations yet</Text>
@@ -177,12 +213,14 @@ const MessageInbox = () => {
         }
       />
 
-      {/* Floating compose */}
-      <Pressable style={styles.fab} onPress={() => { /* open “new chat” later */ }}>
+      {/* Floating Compose Button */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => navigation.navigate("DiscoverConnections", { uid })}
+      >
         <Icon name="message-plus" size={26} color="#fff" />
       </Pressable>
 
-      {/* Bottom navbar */}
       <Navbar />
     </View>
   );
@@ -207,7 +245,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   searchBar: {
     marginHorizontal: 16,
     marginBottom: 10,
@@ -221,8 +258,12 @@ const styles = StyleSheet.create({
     borderColor: BORDER,
   },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 16, color: "#111827" },
-
-  pills: { flexDirection: "row", gap: 8, paddingHorizontal: 16, marginBottom: 12 },
+  pills: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
   pill: {
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -234,7 +275,6 @@ const styles = StyleSheet.create({
   pillActive: { backgroundColor: PINK_LIGHT, borderColor: PINK },
   pillText: { fontSize: 13, color: "#111827" },
   pillTextActive: { color: PINK, fontWeight: "700" },
-
   chatCard: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -266,13 +306,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#fff",
   },
-
   chatContent: { flex: 1 },
-  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  chatName: { fontSize: 16, fontWeight: "700", color: "#111827", maxWidth: "75%" },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  chatName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    maxWidth: "75%",
+  },
   timeText: { fontSize: 12, color: GRAY_TEXT },
-  preview: { color: GRAY_TEXT, marginTop: 2, fontSize: 14, flexShrink: 1, marginRight: 8 },
-
+  preview: {
+    color: GRAY_TEXT,
+    marginTop: 2,
+    fontSize: 14,
+    flexShrink: 1,
+    marginRight: 8,
+  },
   badge: {
     minWidth: 20,
     height: 20,
@@ -283,7 +336,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   badgeText: { color: "#fff", fontSize: 12, fontWeight: "700" },
-
   fab: {
     position: "absolute",
     right: 16,

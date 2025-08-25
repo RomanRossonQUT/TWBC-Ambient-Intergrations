@@ -1,199 +1,275 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { TextInput as RNPTextInput, Button, HelperText, Snackbar } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../firebaseConfig"; // Using ONLY one auth instance
+import { doc, setDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 
-const SignUp = ({ navigation }) => {
-  // State variables for form inputs
+const PINK = "#ED469A";
+
+const SignUp = () => {
+  const navigation = useNavigation();
+
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmError, setConfirmError] = useState("");
+  const [snack, setSnack] = useState({ visible: false, msg: "" });
   const [loading, setLoading] = useState(false);
 
-  // Helper to trim spaces
-  const trimInput = (str) => str.trim();
+  const showSnack = (msg) => setSnack({ visible: true, msg });
+  const hideSnack = () => setSnack({ visible: false, msg: "" });
 
-  // Basic email format validation
-  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
+  const validate = () => {
+    let ok = true;
+    setEmailError("");
+    setPasswordError("");
+    setConfirmError("");
 
-  // Save user to Firestore
-  const saveUserInFirestore = async (uid, email) => {
-    try {
-      await setDoc(doc(collection(db, "users"), uid), {
-        uid,
-        email,
-        createdAt: new Date(),
-      });
-      console.log("SUCCESS: User saved to Firestore.");
-    } catch (error) {
-      console.error("Firestore save error:", error.message);
-      Alert.alert("Error", "Failed to save user data.");
+    const emailTrim = email.trim();
+    const passTrim = password1.trim();
+    const passConfirmTrim = password2.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailTrim) {
+      setEmailError("Email is required");
+      ok = false;
+    } else if (!emailRegex.test(emailTrim)) {
+      setEmailError("Enter a valid email address");
+      ok = false;
     }
+
+    if (!passTrim) {
+      setPasswordError("Password is required");
+      ok = false;
+    } else if (passTrim.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      ok = false;
+    }
+
+    if (passTrim !== passConfirmTrim) {
+      setConfirmError("Passwords do not match");
+      ok = false;
+    }
+
+    return ok;
   };
 
-  // Handle Signup
   const handleSignUp = async () => {
+    if (!validate()) {
+      showSnack("Please fix the highlighted fields.");
+      return;
+    }
+
     try {
-      const trimmedEmail = trimInput(email);
-      const trimmedPassword1 = trimInput(password1);
-      const trimmedPassword2 = trimInput(password2);
-
-      // Validation checks
-      if (!trimmedEmail || !trimmedPassword1 || !trimmedPassword2) {
-        Alert.alert("Missing Fields", "Please fill in all fields.");
-        return;
-      }
-
-      if (!isValidEmail(trimmedEmail)) {
-        Alert.alert("Invalid Email", "Please enter a valid email address.");
-        return;
-      }
-
-      if (trimmedPassword1.length < 6) {
-        Alert.alert("Weak Password", "Password must be at least 6 characters.");
-        return;
-      }
-
-      if (trimmedPassword1 !== trimmedPassword2) {
-        Alert.alert("Password Mismatch", "Passwords do not match.");
-        return;
-      }
-
       setLoading(true);
+      const emailTrim = email.trim();
+      const passTrim = password1.trim();
 
-      // Firebase signup
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        trimmedEmail,
-        trimmedPassword1
-      );
-
-      if (!userCredential?.user) {
-        throw new Error("Signup failed: No user data returned.");
-      }
-
+      const userCredential = await createUserWithEmailAndPassword(auth, emailTrim, passTrim);
       const uid = userCredential.user.uid;
-      await saveUserInFirestore(uid, trimmedEmail);
 
-      console.log("Account created successfully:", uid);
-      Alert.alert("Success", "Your account has been created!");
-      navigation.navigate("Home");
-    } catch (error) {
-      console.error("Signup error:", error.message);
-      Alert.alert("Signup Failed", error.message);
+      // Store user metadata only — NEVER store raw passwords
+      await setDoc(doc(db, "Users", uid), {
+        userID: uid,
+        username: emailTrim,
+        menteeID: null,
+        mentorID: null,
+      });
+
+      showSnack("Account created successfully!");
+      setTimeout(() => {
+        navigation.navigate("MenteeMentorSelector", { uid });
+      }, 1200);
+    } catch (e) {
+      let msg = "Unable to create account. Please try again.";
+      switch (e.code) {
+        case "auth/email-already-in-use":
+          msg = "This email is already registered.";
+          setEmailError("Email already in use");
+          break;
+        case "auth/invalid-email":
+          msg = "Invalid email address.";
+          setEmailError("Invalid email address");
+          break;
+        case "auth/weak-password":
+          msg = "Password is too weak.";
+          setPasswordError("Choose a stronger password");
+          break;
+      }
+      showSnack(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>Women's Business School</Text>
-      <Text style={styles.title}>Create an Account</Text>
-      <Text style={styles.subtitle}>Join and connect with mentors now!</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <View style={[styles.createAccount, styles.center]}>
+          <Pressable style={styles.header}>
+            <Image style={styles.icon} contentFit="cover" source={require("../assets/header-11.png")} />
+          </Pressable>
 
-      {/* Email Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+          <View style={styles.info}>
+            <Text style={styles.title}>Create an Account</Text>
+            <Text style={styles.subtitle}>Join and connect with mentors now!</Text>
+          </View>
 
-      {/* Password Input */}
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        value={password1}
-        onChangeText={setPassword1}
-        secureTextEntry
-      />
+          <View style={styles.formSection}>
+            <RNPTextInput
+              style={styles.form}
+              label="Email"
+              placeholder="Email@address.com"
+              mode="outlined"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              returnKeyType="next"
+              error={!!emailError}
+              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+              value={email}
+              onChangeText={(t) => {
+                setEmail(t);
+                if (emailError) setEmailError("");
+              }}
+            />
+            <HelperText type="error" visible={!!emailError}>{emailError}</HelperText>
 
-      {/* Confirm Password */}
-      <TextInput
-        style={styles.input}
-        placeholder="Reconfirm Password"
-        placeholderTextColor="#888"
-        value={password2}
-        onChangeText={setPassword2}
-        secureTextEntry
-      />
+            <RNPTextInput
+              style={styles.form}
+              label="Password"
+              placeholder="Enter Password"
+              mode="outlined"
+              secureTextEntry
+              error={!!passwordError}
+              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+              value={password1}
+              onChangeText={(t) => {
+                setPassword1(t);
+                if (passwordError) setPasswordError("");
+              }}
+            />
+            <HelperText type="error" visible={!!passwordError}>{passwordError}</HelperText>
 
-      {/* Sign Up Button */}
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleSignUp}
-        disabled={loading}
+            <RNPTextInput
+              style={styles.form}
+              label="Confirm Password"
+              placeholder="Re-enter Password"
+              mode="outlined"
+              secureTextEntry
+              error={!!confirmError}
+              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+              value={password2}
+              onChangeText={(t) => {
+                setPassword2(t);
+                if (confirmError) setConfirmError("");
+              }}
+            />
+            <HelperText type="error" visible={!!confirmError}>{confirmError}</HelperText>
+          </View>
+
+          <Pressable
+            style={[styles.buttonPrimary, loading && { opacity: 0.7 }]}
+            onPress={handleSignUp}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>{loading ? "Creating..." : "Sign Up"}</Text>
+          </Pressable>
+
+          <Button
+            color="#ea9bbf"
+            onPress={() => navigation.navigate("Login")}
+            style={styles.linkButton}
+            labelStyle={styles.linkText}
+          >
+            Already have an account?
+          </Button>
+        </View>
+      </ScrollView>
+
+      <Snackbar
+        visible={snack.visible}
+        onDismiss={hideSnack}
+        duration={3500}
+        action={{ label: "OK", onPress: hideSnack }}
       >
-        <Text style={styles.buttonText}>
-          {loading ? "Creating Account..." : "Sign Up"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        {snack.msg}
+      </Snackbar>
+    </>
   );
 };
 
-export default SignUp;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    paddingVertical: 20,
+    paddingHorizontal: 24,
   },
-  logo: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#e91e63",
-    marginBottom: 15,
+  createAccount: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  info: {
+    marginBottom: 20,
+    alignItems: "center",
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "700",
-    marginTop: 10,
+    textAlign: "center",
+    color: "#000",
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 14,
+    textAlign: "center",
     color: "#666",
-    marginBottom: 30,
   },
-  input: {
+  formSection: {
     width: "100%",
-    padding: 12,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    backgroundColor: "#f9f9f9",
+    marginTop: 12,
+    marginBottom: 16,
   },
-  button: {
-    backgroundColor: "#e91e63",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 6,
-    marginTop: 20,
+  form: {
     width: "100%",
+    marginBottom: 12,
+    backgroundColor: "#fff",
+  },
+  buttonPrimary: {
+    backgroundColor: PINK,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     alignItems: "center",
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+    width: "100%",
+    marginTop: 12,
   },
   buttonText: {
     color: "#fff",
-    fontWeight: "600",
     fontSize: 16,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  linkButton: {
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  linkText: {
+    fontSize: 15,
+    color: "#ea9bbf",
+    textAlign: "center",
   },
 });
+
+
+export default SignUp;

@@ -7,6 +7,8 @@ import Home from './screens/Home';
 import AppEntry from "./screens/AppEntry";
 import MATCHINGSCREEN1 from "./screens/MATCHINGSCREEN1";
 import PROFILESCREEN1 from "./screens/PROFILESCREEN1";
+import EDITPROFILESCREEN from "./screens/EDITPROFILESCREEN";
+import DiscoverConnections from "./screens/DiscoverConnections";
 import CHATSCREEN1 from "./screens/CHATSCREEN1";
 import MENTORSCREEN2 from "./screens/MENTORSCREEN2";
 import MENTORSCREEN3 from "./screens/MENTORSCREEN3";
@@ -114,6 +116,16 @@ const App = () => {
               <Stack.Screen
                 name="PROFILESCREEN1"
                 component={PROFILESCREEN1}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="EDITPROFILESCREEN"
+                component={EDITPROFILESCREEN}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="DiscoverConnections"
+                component={DiscoverConnections}
                 options={{ headerShown: false }}
               />
               <Stack.Screen

@@ -29,46 +29,30 @@ const MenteeMentorSelector = () => {
       if (pid) {
         // a mentor profile already exists, skip ahead
         // TODO: go specifically to the mentor side of mentor matching
-        console.log("mentor profile exists, skip creations.");
         //navigation.navigate("MENTORSCREEN2", {uid, mentorID, type});
         navigation.navigate("Home", {uid, pid, type});
         return; // ensures code after this does not execute once screen is left
       } else {
-        // a mentor profile has not been made yet, continue onto profile creation
-        console.log("onto mentor profile creation");
       }
     } else if (type == "Mentee") {
       const pid = profileCheckSnap.data()["menteeID"];
       //console.log(menteeID);
       if (pid) {
         // a mentee profile already exists, skip ahead
-        console.log("mentee profile exists, skip creation");
         //navigation.navigate("MENTORSCREEN2", {uid, menteeID, type});
-        console.log(typeof(pid));
         navigation.navigate("Home", {uid, pid, type});
         return;
       } else {
-        // a mentee profile has not been made yet, continue onto profile creation
-        console.log("onto mentee profile creation");
       }
     }
 
-    
-
-    console.log("hello?");
     const idCountSnap = await getDoc(doc(db, "Profiles", "profileCount"));
 
     if (idCountSnap.exists()) {
       // incremental ID
       const newID = idCountSnap.data()["count"] + 1;
-
-      console.log(newID);
-
       // save ID count
       await setDoc(doc(db, "Profiles", "profileCount"), { count: newID });
-      
-      // create a new profile
-      console.log("1")
       await setDoc(doc(db, "Profiles", newID.toString()), {
         /* aboutMe: null,
         currentIndustry: null,
@@ -82,7 +66,6 @@ const MenteeMentorSelector = () => {
         profileType: type,
         profileID: newID
       })
-      console.log("2")
 
       // attach the profile to their user
       if (type == "Mentor") {

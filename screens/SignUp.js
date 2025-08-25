@@ -1,255 +1,199 @@
-import React, { useState, useEffect } from "react";
-import { Image } from "expo-image";
-import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
-import { TextInput as RNPTextInput } from "react-native-paper";
-import { Button } from 'react-native-paper';
-import { useNavigation } from "@react-navigation/native";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc} from "firebase/firestore"
-import { db, auth } from '../firebaseConfig'
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig"; // Using ONLY one auth instance
 
-const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password1, setPassword1] = useState('');
-  const [password2, setPassword2] = useState('');
+const SignUp = ({ navigation }) => {
+  // State variables for form inputs
+  const [email, setEmail] = useState("");
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const navigation = useNavigation();
+  // Helper to trim spaces
+  const trimInput = (str) => str.trim();
 
-  const checkStringEmpty = async (string) => {
-    if (string == null || string == "") {
-      return true
-    }
-    return false
-  }
-  const removeWhiteSpace = async (string) => {
-    return string.trimEnd();
-  }
+  // Basic email format validation
+  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-  const saveUserInFirestore = async (uid, email, password) => {
+  // Save user to Firestore
+  const saveUserInFirestore = async (uid, email) => {
     try {
-      await setDoc(doc(db, "Users", uid), {
-        userID: uid,
-        username: email,
-        password: password,
-        menteeID: null,
-        mentorID: null
+      await setDoc(doc(collection(db, "users"), uid), {
+        uid,
+        email,
+        createdAt: new Date(),
       });
       console.log("SUCCESS: User saved to Firestore.");
     } catch (error) {
-        console.error('ERROR: There was an issue saving account to database:', error);
+      console.error("Firestore save error:", error.message);
+      Alert.alert("Error", "Failed to save user data.");
     }
-  }
+  };
 
-  const handleSignUp = () => {
-    console.log(email)
-    console.log(password1)
-    console.log(password2)
-    removeWhiteSpace(password1);
-    removeWhiteSpace(password2);
-    removeWhiteSpace(email);
-    if (password1 == password2) {
-      // passwords are the same so now create account
-      // TODO: currently an issue with if there is a space in the email at the end
+  // Handle Signup
+  const handleSignUp = async () => {
+    try {
+      const trimmedEmail = trimInput(email);
+      const trimmedPassword1 = trimInput(password1);
+      const trimmedPassword2 = trimInput(password2);
 
-      console.log("attempting to save");
-      if (checkStringEmpty(email) == true || checkStringEmpty(password1) == true || checkStringEmpty(password2) == true) {
-        console.error("email or password is empty");
-        error("email or password is empty");
+      // Validation checks
+      if (!trimmedEmail || !trimmedPassword1 || !trimmedPassword2) {
+        Alert.alert("Missing Fields", "Please fill in all fields.");
+        return;
+      }
+
+      if (!isValidEmail(trimmedEmail)) {
+        Alert.alert("Invalid Email", "Please enter a valid email address.");
+        return;
+      }
+
+      if (trimmedPassword1.length < 6) {
+        Alert.alert("Weak Password", "Password must be at least 6 characters.");
+        return;
+      }
+
+      if (trimmedPassword1 !== trimmedPassword2) {
+        Alert.alert("Password Mismatch", "Passwords do not match.");
+        return;
+      }
+
+      setLoading(true);
+
+      // Firebase signup
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        trimmedEmail,
+        trimmedPassword1
+      );
+
+      if (!userCredential?.user) {
+        throw new Error("Signup failed: No user data returned.");
+      }
+
+      const uid = userCredential.user.uid;
+      await saveUserInFirestore(uid, trimmedEmail);
+
+      console.log("Account created successfully:", uid);
+      Alert.alert("Success", "Your account has been created!");
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Signup error:", error.message);
+      Alert.alert("Signup Failed", error.message);
+    } finally {
+      setLoading(false);
     }
-    
-      createUserWithEmailAndPassword(auth, email, password1)
-        .then((userCredential) => {
-          //signed up
-          const user = userCredential.user;
-          const uid = user.uid;
-          //console.log(uid);
-          saveUserInFirestore(uid, email, password1);
-          // navigate to the next page
-          navigation.navigate("Welcome")
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.error(`Error ${errorCode}: ${errorMessage}`);
-        });
-
-    } else {
-      // this will need to change
-      console.error("passwords are not the same");
-    }
-  }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={[styles.createAccount, styles.createAccountFlexBox]}>
-        <Pressable
-          style={styles.header1}
-        >
-          <Image
-            style={styles.icon}
-            contentFit="cover"
-            source={require("../assets/header-11.png")}
-          />
-        </Pressable>
-        <View style={[styles.info, styles.infoCommon]}>
-          <Text style={[styles.createAnAccount, styles.createAnAccountFlexBox]}>
-            Create an Account
-          </Text>
-          <Text style={[styles.joinAndConnect, styles.createAnAccountFlexBox]}>
-            Join and connect with mentors now!
-          </Text>
-        </View>
-        <View style={[styles.signupSection, styles.signupSectionSpaceBlock]}>
-          <RNPTextInput
-            style={styles.form}
-            label="Email"
-            placeholder="Email@address.com"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <RNPTextInput
-            style={styles.form}
-            label="Password"
-            placeholder="Enter Password"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
-            value={password1}
-            onChangeText={setPassword1}
-          />
-          <RNPTextInput
-            style={styles.form}
-            label="Reconfirm Password"
-            placeholder="Reconfirm Password"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
-            value={password2}
-            onChangeText={setPassword2}
-          />
-        </View>
-        <Pressable
-          style={[styles.buttonPrimary, styles.signupSectionSpaceBlock]}
-          //onPress={() => navigation.navigate("Welcome")}
-          onPress={handleSignUp}
-        >
-          <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>
-            Sign Up
-          </Text>
-        </Pressable>
-        <Button
-          title="Already have an account?"
-          radius="0"
-          iconPosition="left"
-          type="clear"
-          color="#ea9bbf"
-          titleStyle={styles.alreadyHaveAnBtn}
-          onPress={() => navigation.navigate("Login")}
-          containerStyle={styles.alreadyHaveAnBtn1}
-          buttonStyle={styles.alreadyHaveAnBtn2}
-        />
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <Text style={styles.logo}>Women's Business School</Text>
+      <Text style={styles.title}>Create an Account</Text>
+      <Text style={styles.subtitle}>Join and connect with mentors now!</Text>
+
+      {/* Email Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#888"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+
+      {/* Password Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#888"
+        value={password1}
+        onChangeText={setPassword1}
+        secureTextEntry
+      />
+
+      {/* Confirm Password */}
+      <TextInput
+        style={styles.input}
+        placeholder="Reconfirm Password"
+        placeholderTextColor="#888"
+        value={password2}
+        onChangeText={setPassword2}
+        secureTextEntry
+      />
+
+      {/* Sign Up Button */}
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleSignUp}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Creating Account..." : "Sign Up"}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
+export default SignUp;
+
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    paddingHorizontal: 30,
-    paddingVertical: 30,
-    alignItems: "center",
-    marginTop: 50,
-  },
-  alreadyHaveAnBtn: {
-    color: "#ea9bbf",
-    fontSize: 15,
-    fontWeight: "600",
-    fontFamily: "Raleway-SemiBold",
-  },
-  alreadyHaveAnBtn1: {
-    position: "relative",
-  },
-  alreadyHaveAnBtn2: {},
-  createAccountFlexBox: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  infoCommon: {
-    gap: 20,
-    overflow: "hidden",
-  },
-  createAnAccountFlexBox: {
-    textAlign: "left",
-    color: "#000",
-    alignSelf: "stretch",
-  },
-  signupSectionSpaceBlock: {
-    paddingVertical: 10,
-    paddingHorizontal: 0,
-    alignSelf: "stretch",
-  },
-  viewDetailsTypo: {
-    fontFamily: "Raleway-Bold",
-    fontWeight: "700",
-  },
-  icon: {
-    height: "100%",
-    width: "100%",
-  },
-  header1: {
-    width: 330,
-    height: 270,
-  },
-  createAnAccount: {
-    fontSize: 32,
-    fontFamily: "Raleway-Bold",
-    fontWeight: "700",
-  },
-  joinAndConnect: {
-    fontFamily: "Raleway-Regular",
-    fontSize: 18,
-  },
-  info: {
-    alignSelf: "stretch",
-  },
-  form: {
-    alignSelf: "stretch",
-  },
-  signupSection: {
-    gap: 20,
-    overflow: "hidden",
-  },
-  viewDetails: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 18,
-  },
-  buttonPrimary: {
-    borderRadius: 5,
-    backgroundColor: "#ed469a",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  createAccount: {
+  container: {
     flex: 1,
-    paddingHorizontal: 30,
-    paddingVertical: 0,
-    gap: 30,
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  logo: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#e91e63",
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "700",
+    marginTop: 10,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 30,
+  },
+  input: {
     width: "100%",
+    padding: 12,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    backgroundColor: "#f9f9f9",
+  },
+  button: {
+    backgroundColor: "#e91e63",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 6,
+    marginTop: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
-
-export default SignUp;

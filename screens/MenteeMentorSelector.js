@@ -14,7 +14,8 @@ const MenteeMentorSelector = () => {
 
   // get current userID
   onAuthStateChanged(auth, (user) => {
-    if (user) { setUID(user.uid); } else { console.error("No user logged in"); }
+    if (user) { setUID(user.uid); } else {} // hide errors
+
     //console.log(uid)
   })
 

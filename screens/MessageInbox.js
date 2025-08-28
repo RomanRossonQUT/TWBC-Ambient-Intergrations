@@ -15,6 +15,7 @@ import {
   query,
   where,
   doc,
+  onSnapshot,
 } from "firebase/firestore";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -37,60 +38,57 @@ const MessageInbox = () => {
   const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
-    const fetchConnections = async () => {
-      if (!uid) return;
+    if (!uid) return;
 
-      try {
-        // 🔹 Get all connection docs where the current user is involved
-        const connQuery = query(
-          collection(db, "Connections"),
-          where("userIds", "array-contains", uid)
-        );
-        const connSnapshot = await getDocs(connQuery);
+    // 🔹 Create a query for connections involving this user
+    const connQuery = query(
+      collection(db, "Connections"),
+      where("userIds", "array-contains", uid)
+    );
 
-        if (connSnapshot.empty) {
-          setConnections([]);
-          return;
+    // 🔹 Set up real-time listener
+    const unsubscribe = onSnapshot(connQuery, async (connSnapshot) => {
+      if (connSnapshot.empty) {
+        setConnections([]);
+        return;
+      }
+
+      const connectedUserIds = [];
+      const connectedUserNames = {};
+
+      connSnapshot.docs.forEach((docSnap) => {
+        const data = docSnap.data();
+        const otherId = data.userIds.find((id) => id !== uid);
+        if (otherId) {
+          connectedUserIds.push(otherId);
+          connectedUserNames[otherId] = data.userNames?.[otherId] || "";
         }
+      });
 
-        const connectedUserIds = [];
-        const connectedUserNames = {};
+      // 🔹 Get user profiles for connected users
+      const usersSnapshot = await getDocs(collection(db, "Users"));
+      const allUsers = usersSnapshot.docs.map((u) => ({
+        id: u.id,
+        ...u.data(),
+      }));
 
-        connSnapshot.docs.forEach((docSnap) => {
-          const data = docSnap.data();
-          const otherId = data.userIds.find((id) => id !== uid);
-          if (otherId) {
-            connectedUserIds.push(otherId);
-            connectedUserNames[otherId] = data.userNames?.[otherId] || "";
-          }
-        });
-
-        // 🔹 Fetch user profiles for connected users
-        const usersSnapshot = await getDocs(collection(db, "Users"));
-        const allUsers = usersSnapshot.docs.map((u) => ({
+      const connectedUsers = allUsers
+        .filter((u) => connectedUserIds.includes(u.id))
+        .map((u) => ({
           id: u.id,
-          ...u.data(),
+          name:
+            connectedUserNames[u.id] ||
+            `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+            "Unknown User",
+          lastMessage: "Say hi 👋",
+          unreadCount: 0,
         }));
 
-        const connectedUsers = allUsers
-          .filter((u) => connectedUserIds.includes(u.id))
-          .map((u) => ({
-            id: u.id,
-            name:
-              connectedUserNames[u.id] ||
-              `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
-              "Unknown User",
-            lastMessage: "Say hi 👋",
-            unreadCount: 0,
-          }));
+      setConnections(connectedUsers);
+    });
 
-        setConnections(connectedUsers);
-      } catch (error) {
-        console.error("Error fetching inbox:", error);
-      }
-    };
-
-    fetchConnections();
+    // 🔹 Cleanup listener when component unmounts
+    return () => unsubscribe();
   }, [uid]);
 
   const visible = useMemo(() => {

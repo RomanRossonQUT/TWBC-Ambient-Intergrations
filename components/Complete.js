@@ -1,4 +1,4 @@
-import * as React from "react";
+// REVIEW
 import { Button } from "@rneui/themed";
 import {
   StyleSheet,

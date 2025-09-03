@@ -1,4 +1,4 @@
-import React from 'react';
+// REVIEW
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -47,10 +47,10 @@ const Navbar = () => {
         </Pressable>
 
         <Pressable
-          style={[styles.navButton, isActive('PROFILESCREEN1') && styles.activeButton]}
-          onPress={() => navigation.navigate('PROFILESCREEN1', { uid, pid, type })}
+          style={[styles.navButton, isActive('UserProfile') && styles.activeButton]}
+          onPress={() => navigation.navigate('UserProfile', { uid, pid, type })}
         >
-          <Icon name="user" size={24} color={isActive('PROFILESCREEN1') ? '#ffb6c1' : '#fff'} />
+          <Icon name="user" size={24} color={isActive('UserProfile') ? '#ffb6c1' : '#fff'} />
         </Pressable>
       </View>
     );
@@ -67,10 +67,10 @@ const Navbar = () => {
       </Pressable>
 
       <Pressable
-        style={[styles.navButton, isActive('MATCHINGSCREEN1') && styles.activeButton]}
-        onPress={() => navigation.navigate('MATCHINGSCREEN1', { uid, pid, type })}
+        style={[styles.navButton, isActive('InteractiveMatching') && styles.activeButton]}
+        onPress={() => navigation.navigate('InteractiveMatching', { uid, pid, type })}
       >
-        <Icon name="users" size={24} color={isActive('MATCHINGSCREEN1') ? '#ffb6c1' : '#fff'} />
+        <Icon name="users" size={24} color={isActive('InteractiveMatching') ? '#ffb6c1' : '#fff'} />
       </Pressable>
 
       {/* Direct Messages (kept) */}
@@ -90,10 +90,10 @@ const Navbar = () => {
       </Pressable>
 
       <Pressable
-        style={[styles.navButton, isActive('PROFILESCREEN1') && styles.activeButton]}
-        onPress={() => navigation.navigate('PROFILESCREEN1', { uid, pid, type })}
+        style={[styles.navButton, isActive('UserProfile') && styles.activeButton]}
+        onPress={() => navigation.navigate('UserProfile', { uid, pid, type })}
       >
-        <Icon name="user" size={24} color={isActive('PROFILESCREEN1') ? '#ffb6c1' : '#fff'} />
+        <Icon name="user" size={24} color={isActive('UserProfile') ? '#ffb6c1' : '#fff'} />
       </Pressable>
     </View>
   );

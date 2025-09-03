@@ -1,17 +1,18 @@
+// This file is used to configure and initialise Firebase services for a React Native application.
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth";
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getStorage } from "firebase/storage";
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 
-// Import environment variables for Firebase configuration from the .env file
+// Import environment variables for Firebase configuration from the .env file.
 import { 
   API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET,
   MESSAGING_SENDER_ID, APP_ID, MEASUREMENT_ID 
 } from '@env';
 
-// Firebase configuration objects
+// Firebase configuration objects.
 const firebaseConfig = {
   apiKey: API_KEY,
   authDomain: AUTH_DOMAIN,
@@ -22,14 +23,14 @@ const firebaseConfig = {
   measurementId: MEASUREMENT_ID
 };
 
-// Initialize Firebase
+// Initialise Firebase.
 const app = initializeApp(firebaseConfig);
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 const db = getFirestore(app);
 
+// Export the Firebase services for use in other parts of the application.
 export { app, auth, db };
-// Export the Firebase services for use in other parts of the application
 export default { auth, getAuth, db };
 export const storage = getStorage(app);

@@ -1,4 +1,4 @@
-import * as React from "react";
+// REVIEW
 import { Input } from "@ui-kitten/components";
 import { Text, StyleSheet, View } from "react-native";
 

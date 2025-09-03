@@ -1,4 +1,4 @@
-import * as React from "react";
+// REVIEW
 import { TextInput, StyleSheet } from "react-native";
 
 const Message = () => {

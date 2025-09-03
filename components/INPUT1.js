@@ -1,5 +1,4 @@
-import * as React from "react";
-
+// REVIEW
 const INPUT1 = () => {
   return (
     <View style={styles.input}>

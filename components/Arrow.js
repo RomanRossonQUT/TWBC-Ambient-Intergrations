@@ -1,5 +1,4 @@
-import * as React from "react";
-
+// REVIEW
 const Arrow = () => {
   return (
     <Image

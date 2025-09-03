@@ -1,4 +1,4 @@
-import * as React from "react";
+// REVIEW
 import { Text, StyleSheet, View } from "react-native";
 
 const AboutMe = ({ aboutMe }) => {

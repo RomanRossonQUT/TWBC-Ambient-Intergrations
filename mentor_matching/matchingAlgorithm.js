@@ -1,3 +1,4 @@
+// REVIEW
 import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, getDocs, collection, query, where, getDoc, limit, addDoc, updateDoc, startAfter, increment, deleteDoc} from "firebase/firestore";
 import { db, auth } from '../firebaseConfig';
@@ -250,17 +251,17 @@ async function updateLikedTags(pid, tagArray) {
     Process a snapshot of mentors returned from firestore into an
     array of formatted objects.
 
-    @param {QuerySnapshot} <mentorProfiles> : snapshot of mentor profile docs
+    @param {QuerySnapshot} <MentorProfiles> : snapshot of mentor profile docs
     @param {number} iTagCount : number of interest type tags
     @param {number} sTagCount : number of skill type tags
 
     @return {array} MentorsArray : array of mentors formatted into objects containing profileID, 
                                     profileData, and profileTags
 */
-async function processMentors(mentorProfiles, iTagCount, sTagCount) {
+async function processMentors(MentorProfiles, iTagCount, sTagCount) {
     const MentorsArray = [];
 
-    mentorProfiles.forEach((doc) => {      
+    MentorProfiles.forEach((doc) => {      
         // -- store profile data --
         const profile = doc.data();
 
@@ -321,35 +322,35 @@ async function processMentors(mentorProfiles, iTagCount, sTagCount) {
 async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
     const plimit = RATELIMIT; // the number of profiles to call in one go, this value can be adjusted
 
-    var mentorProfiles;
+    var MentorProfiles;
     // get a block of n = plimit unprocessed mentor profiles 
     if (firstRun) {
-        mentorProfiles = await getDocs(query(collection(db, "Profiles"), where("profileType", "==", "Mentor"), limit(plimit)));
+        MentorProfiles = await getDocs(query(collection(db, "Profiles"), where("profileType", "==", "Mentor"), limit(plimit)));
 
-        if (mentorProfiles.empty) {
+        if (MentorProfiles.empty) {
             // either no mentor profiles exist, or an error occurred.
             const msg = "Sorry! Either no mentors exist at this time, or an error has occurred retrieving them. Please try again later.";
             return [null, msg];
         }
 
     } else {
-        mentorProfiles = await getDocs(query(collection(db, "Profiles"), 
+        MentorProfiles = await getDocs(query(collection(db, "Profiles"), 
             where("profileType", "==", "Mentor"),
             startAfter(lastDoc),
             limit(plimit)));
         
-        if (mentorProfiles.empty) {
+        if (MentorProfiles.empty) {
             // the mentee has looked through all mentor profiles
             const msg = "You've seen all of our available mentors, but more join all the time! Check in again later, or revisit skipped mentors in the meantime.";
             return [null, msg];
         }
     }
 
-    const newLastDoc = mentorProfiles.docs[mentorProfiles.docs.length-1];
+    const newLastDoc = MentorProfiles.docs[MentorProfiles.docs.length-1];
 
     // process those mentors
 
-    let MentorsArray = await processMentors(mentorProfiles, iTagCount, sTagCount);
+    let MentorsArray = await processMentors(MentorProfiles, iTagCount, sTagCount);
 
     // filter out any existing matches or move created but unresponded to front
 

@@ -60,7 +60,6 @@ export default function NewThread() {
       categoryId,
       title: title.trim(),
       createdBy: uid,
-      creatorName: "You",
       createdAt: now,
       lastPostAt: now,
     });
@@ -70,7 +69,6 @@ export default function NewThread() {
       threadId: threadRef.id,
       text: body.trim(),
       createdBy: uid,
-      creatorName: "You",
       createdAt: now,
     });
 

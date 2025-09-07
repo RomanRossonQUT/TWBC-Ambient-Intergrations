@@ -30,6 +30,8 @@ const auth = initializeAuth(app, {
 });
 const db = getFirestore(app);
 
+// Cloudinary configuration is now handled directly via REST API calls in relevant files.
+
 // Export the Firebase services for use in other parts of the application.
 export { app, auth, db };
 export default { auth, getAuth, db };

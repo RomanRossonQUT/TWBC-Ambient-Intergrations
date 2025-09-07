@@ -171,15 +171,39 @@ export default function Conversation({ route }) {
     }
   };
 
-  // Upload the selected image (if any) to Storage and return its URL
-  const uploadImageIfAny = async () => {
+  // Upload the selected image (if any) to Cloudinary and return its URL
+  const uploadImageToCloudinary = async () => {
     if (!imageUri) return null;
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
-    const path = `dm/${chatId}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, blob);
-    return await getDownloadURL(storageRef);
+
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append("file", blob);
+      formData.append("upload_preset", "uploads");
+      formData.append("api_key", process.env.CLOUDINARY_API_KEY); // Use API key from .env
+      formData.append("api_secret", process.env.CLOUDINARY_API_SECRET); // Use API secret from .env
+
+      const res = await fetch("https://api.cloudinary.com/v1_1/de5xybldg/image/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Cloudinary upload error response:", errorData);
+        Alert.alert("Upload failed", "Could not upload the image. Please try again.");
+        return null;
+      }
+
+      const data = await res.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      Alert.alert("Upload failed", "Could not upload the image. Please try again.");
+      return null;
+    }
   };
 
   // Send message (text + optional image)
@@ -189,7 +213,7 @@ export default function Conversation({ route }) {
 
     setSending(true);
     try {
-      const imageUrl = await uploadImageIfAny();
+      const imageUrl = await uploadImageToCloudinary();
       await addDoc(collection(db, "chats", chatId, "messages"), {
         senderId: currentUserId,
         text: text || "",

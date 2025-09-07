@@ -84,7 +84,7 @@ const SignUp = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, emailTrim, passTrim);
       const uid = userCredential.user.uid;
 
-      // Store user metadata only — NEVER store raw passwords
+      // Store user metadata only — NEVER store raw passwords. Passwords are managed by Firebase Auth.
       await setDoc(doc(db, "Users", uid), {
         userID: uid,
         username: emailTrim,

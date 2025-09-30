@@ -2,7 +2,9 @@
   "expo": {
     "name": "The Women's Business Collective",
     "slug": "the-womens-business-collective-app",
-    "version": "1.0.0",
+    "scheme": "twbc",
+    "description": "Mobile platform for The Women’s Business Collective. Connect to mentors, manage profiles, and engage in the forum.",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -28,6 +30,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

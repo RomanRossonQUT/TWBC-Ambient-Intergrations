@@ -24,20 +24,27 @@ const About3 = ({ route }) => {
   };
 
   const saveData = async () => {
-    console.log(activeButtons);
-    const selectedSkills = Object.keys(activeButtons).filter((key) => activeButtons[key]).map(Number);
+    try {
+      console.log("[DEBUG] Active buttons:", activeButtons);
+      const selectedSkills = Object.keys(activeButtons).filter((key) => activeButtons[key]).map(Number);
 
-    for (i in selectedSkills) {
+      // Convert to 1-based indexing for database storage
+      for (let i = 0; i < selectedSkills.length; i++) {
+        selectedSkills[i] += 1;
+      }
+      console.log("[DATA] Selected skills:", selectedSkills);
 
-      selectedSkills[i] += 1;
+      await setDoc(doc(db, "Profiles", pid.toString()), {
+        skills: selectedSkills,
+      }, { merge: true });
+
+      console.log("[SUCCESS] Skills saved successfully");
+      navigation.navigate("About4", { uid, pid, type });
+    } catch (error) {
+      console.error("[ERROR] Error saving skills:", error);
+      // Still navigate to next screen even if save fails
+      navigation.navigate("About4", { uid, pid, type });
     }
-    console.log(selectedSkills);
-
-    await setDoc(doc(db, "Profiles", pid.toString()), {
-      skills: selectedSkills,
-    }, { merge: true });
-
-    navigation.navigate("About4", { uid, pid, type });
   };
 
   return (

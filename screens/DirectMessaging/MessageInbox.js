@@ -24,6 +24,8 @@ import {
   where,
   doc,
   onSnapshot,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -80,17 +82,52 @@ const MessageInbox = () => {
         ...u.data(),
       }));
 
-      const connectedUsers = allUsers
-        .filter((u) => connectedUserIds.includes(u.id))
-        .map((u) => ({
-          id: u.id,
-          name:
-            connectedUserNames[u.id] ||
-            `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
-            "Unknown User",
-          lastMessage: "Say hi 👋",
-          unreadCount: 0,
-        }));
+      // Get recent messages for each connection
+      const connectedUsers = await Promise.all(
+        allUsers
+          .filter((u) => connectedUserIds.includes(u.id))
+          .map(async (u) => {
+            // Get the most recent message between these two users
+            const chatId = [uid, u.id].sort().join('_');
+            const messagesQuery = query(
+              collection(db, "chats", chatId, "messages"),
+              orderBy("timestamp", "desc"),
+              limit(1)
+            );
+            
+            let lastMessage = "Start a conversation";
+            let unreadCount = 0;
+            
+            try {
+              const messagesSnapshot = await getDocs(messagesQuery);
+              if (!messagesSnapshot.empty) {
+                const lastMsg = messagesSnapshot.docs[0].data();
+                lastMessage = lastMsg.text || "Image shared";
+                
+                // Count unread messages (messages not from current user)
+                const unreadQuery = query(
+                  collection(db, "chats", chatId, "messages"),
+                  where("senderId", "!=", uid),
+                  where("timestamp", ">", lastMsg.timestamp || new Date(0))
+                );
+                const unreadSnapshot = await getDocs(unreadQuery);
+                unreadCount = unreadSnapshot.size;
+              }
+            } catch (error) {
+              console.log("No messages found for chat:", chatId);
+            }
+
+            return {
+              id: u.id,
+              name:
+                connectedUserNames[u.id] ||
+                `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+                "Unknown User",
+              lastMessage,
+              unreadCount,
+            };
+          })
+      );
 
       setConnections(connectedUsers);
     });

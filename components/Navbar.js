@@ -1,4 +1,3 @@
-// REVIEW
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -23,10 +22,10 @@ const Navbar = () => {
         </Pressable>
 
         <Pressable
-          style={[styles.navButton, isActive('MENTORSCREEN3') && styles.activeButton]}
-          onPress={() => navigation.navigate('MENTORSCREEN3', { uid, pid, type })}
+          style={[styles.navButton, isActive('MentorMatching') && styles.activeButton]}
+          onPress={() => navigation.navigate('MentorMatching', { uid, pid, type })}
         >
-          <Icon name="users" size={24} color={isActive('MENTORSCREEN3') ? '#ffb6c1' : '#fff'} />
+          <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ffb6c1' : '#fff'} />
         </Pressable>
 
         {/* Direct Messages (kept) */}
@@ -67,10 +66,10 @@ const Navbar = () => {
       </Pressable>
 
       <Pressable
-        style={[styles.navButton, isActive('InteractiveMatching') && styles.activeButton]}
-        onPress={() => navigation.navigate('InteractiveMatching', { uid, pid, type })}
+        style={[styles.navButton, isActive('MentorMatching') && styles.activeButton]}
+        onPress={() => navigation.navigate('MentorMatching', { uid, pid, type })}
       >
-        <Icon name="users" size={24} color={isActive('InteractiveMatching') ? '#ffb6c1' : '#fff'} />
+        <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ffb6c1' : '#fff'} />
       </Pressable>
 
       {/* Direct Messages (kept) */}

@@ -2,7 +2,7 @@
 
 // Core & React Navigation
 import React, { useEffect } from "react";
-import { LogBox, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -15,13 +15,11 @@ import { useFonts } from "expo-font";
 // Screens
 import AppEntry from "./screens/EntryPoint/AppEntry";
 import Home from "./screens/EntryPoint/Home";
-import InteractiveMatching from "./screens/MentorMenteeMatching/InteractiveMatching";
+import MentorMatching from "./screens/MentorMatching/MentorMatching";
 import UserProfile from "./screens/Profiles/UserProfile";
 import EditProfile from "./screens/Profiles/EditProfile";
 import DiscoverConnections from "./screens/DirectMessaging/DiscoverConnections";
 import MenteeMentorSelector from "./screens/EntryPoint/MenteeMentorSelector";
-import MentorProfile from "./screens/MentorMenteeMatching/MentorProfile";
-
 import About1 from "./screens/Profiles/About1";
 import About2 from "./screens/Profiles/About2";
 import About3 from "./screens/Profiles/About3";
@@ -29,7 +27,6 @@ import About4 from "./screens/Profiles/About4";
 
 import Login from "./screens/EntryPoint/Login";
 import SignUp from "./screens/EntryPoint/SignUp";
-import ResetMatches from "./screens/MentorMenteeMatching/ResetMatches";
 
 import MessageInbox from "./screens/DirectMessaging/MessageInbox";
 import Conversation from "./screens/DirectMessaging/Conversation";
@@ -39,8 +36,9 @@ import ThreadList from "./screens/Forums/ThreadList";
 import ThreadDetail from "./screens/Forums/ThreadDetail";
 import NewThread from "./screens/Forums/NewThread";
 
-// Demo Utilities
-import { initDemo } from "./demo/demo";
+
+// Notification Service
+import notificationService from "./services/notificationService";
 
 // IMPORTANT: Define the stack AFTER importing the factory.
 const Stack = createNativeStackNavigator();
@@ -73,15 +71,23 @@ const MaterialIconsPack = {
 };
 
 const App = () => {
-  // One-time demo-mode init & log suppression.
   useEffect(() => {
-    const demoMode = require("./demo/toggleDemoMode.json");
-    console.log("Demo Mode Toggled:", demoMode["demoMode"]);
-    if (demoMode["demoMode"]) {
-      // Silence noisy logs in demo runs
-      LogBox.ignoreAllLogs();
-      initDemo();
-    }
+    // Initialize notification service
+    notificationService.initialize().then((token) => {
+      if (token) {
+        console.log('Notification service initialized successfully');
+        notificationService.setupNotificationListeners();
+      } else {
+        console.log('Notification service initialization failed or skipped');
+      }
+    }).catch((error) => {
+      console.error('Error initializing notification service:', error);
+    });
+    
+    // Cleanup on unmount
+    return () => {
+      notificationService.cleanup();
+    };
   }, []);
 
   // NOTE: this flag gates the navigator tree (kept as-is to not change behavior)
@@ -124,12 +130,10 @@ const App = () => {
               <Stack.Screen name="SignUp" component={SignUp} />
 
               {/* Profiles & Matching */}
-              <Stack.Screen name="InteractiveMatching" component={InteractiveMatching} />
+              <Stack.Screen name="MentorMatching" component={MentorMatching} />
               <Stack.Screen name="UserProfile" component={UserProfile} />
               <Stack.Screen name="EditProfile" component={EditProfile} />
-              <Stack.Screen name="ResetMatches" component={ResetMatches} />
               <Stack.Screen name="MenteeMentorSelector" component={MenteeMentorSelector} />
-              <Stack.Screen name="MentorProfile" component={MentorProfile} />
 
               {/* Discovery & Chat */}
               <Stack.Screen name="DiscoverConnections" component={DiscoverConnections} />

@@ -7,14 +7,15 @@
 // - Navigates to "Login" or "MenteeMentorSelector" after success.
 // -----------------------------------------------------------------------------
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { TextInput as RNPTextInput, Button, HelperText, Snackbar } from "react-native-paper";
+import { TextInput as RNPTextInput, Button, HelperText, Snackbar, ActivityIndicator } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
+import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db, auth } from "../../firebaseConfig";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const PINK = "#ED469A";
 
@@ -28,10 +29,118 @@ const SignUp = () => {
   const [confirmError, setConfirmError] = useState("");
   const [snack, setSnack] = useState({ visible: false, msg: "" });
   const [loading, setLoading] = useState(false);
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null); // null, 'available', 'taken', 'checking'
   const showSnack = (msg) => setSnack({ visible: true, msg });
   const hideSnack = () => setSnack({ visible: false, msg: "" });
 
-  // Validation: email format, min length, match confirmation
+  // Debounced email checking function
+  const checkEmailAvailability = useCallback(async (emailToCheck) => {
+    if (!emailToCheck || !emailToCheck.includes('@')) {
+      setEmailStatus(null);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailToCheck)) {
+      setEmailStatus(null);
+      return;
+    }
+
+    try {
+      setEmailChecking(true);
+      setEmailStatus('checking');
+      console.log("[DEBUG] Checking email availability:", emailToCheck);
+
+      // Check both Firebase Auth and Firestore for existing emails
+      let emailExists = false;
+
+      // Method 1: Check Firebase Auth
+      try {
+        const signInMethods = await fetchSignInMethodsForEmail(auth, emailToCheck);
+        console.log("[DATA] Firebase Auth sign-in methods:", signInMethods);
+        
+        if (signInMethods && signInMethods.length > 0) {
+          emailExists = true;
+          console.log("[DATA] Email found in Firebase Auth");
+        }
+      } catch (authError) {
+        console.log("[WARN] Firebase Auth check failed:", authError.message);
+      }
+
+      // Method 2: Check Firestore Users collection
+      if (!emailExists) {
+        try {
+          const usersQuery = query(
+            collection(db, "Users"),
+            where("username", "==", emailToCheck)
+          );
+          const usersSnapshot = await getDocs(usersQuery);
+          console.log("[DATA] Firestore Users query result:", usersSnapshot.size, "documents");
+          
+          if (!usersSnapshot.empty) {
+            emailExists = true;
+            console.log("[DATA] Email found in Firestore Users collection");
+          }
+        } catch (firestoreError) {
+          console.log("[WARN] Firestore Users check failed:", firestoreError.message);
+        }
+      }
+
+      // Method 3: Check Firestore Profiles collection (backup check)
+      if (!emailExists) {
+        try {
+          const profilesQuery = query(
+            collection(db, "Profiles"),
+            where("email", "==", emailToCheck)
+          );
+          const profilesSnapshot = await getDocs(profilesQuery);
+          console.log("[DATA] Firestore Profiles query result:", profilesSnapshot.size, "documents");
+          
+          if (!profilesSnapshot.empty) {
+            emailExists = true;
+            console.log("[DATA] Email found in Firestore Profiles collection");
+          }
+        } catch (firestoreError) {
+          console.log("[WARN] Firestore Profiles check failed:", firestoreError.message);
+        }
+      }
+
+      // Set final status
+      if (emailExists) {
+        setEmailStatus('taken');
+        setEmailError("This email is already registered");
+        console.log("[DATA] Email is already taken - found in database");
+      } else {
+        setEmailStatus('available');
+        setEmailError("");
+        console.log("[SUCCESS] Email is available - not found in any database");
+      }
+    } catch (error) {
+      console.error("[ERROR] Error checking email:", error);
+      console.error("[ERROR] Error details:", error.code, error.message);
+      setEmailStatus(null);
+      // Don't set error here as it might be a network issue
+    } finally {
+      setEmailChecking(false);
+    }
+  }, []);
+
+  // Debounce email checking
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (email.trim()) {
+        checkEmailAvailability(email.trim());
+      } else {
+        setEmailStatus(null);
+        setEmailError("");
+      }
+    }, 800); // 800ms delay
+
+    return () => clearTimeout(timeoutId);
+  }, [email, checkEmailAvailability]);
+
+  // Validation: email format, min length, match confirmation, email availability
   const validate = () => {
     let ok = true;
     setEmailError("");
@@ -49,6 +158,12 @@ const SignUp = () => {
       ok = false;
     } else if (!emailRegex.test(emailTrim)) {
       setEmailError("Enter a valid email address");
+      ok = false;
+    } else if (emailStatus === 'taken') {
+      setEmailError("This email is already registered");
+      ok = false;
+    } else if (emailStatus === 'checking') {
+      setEmailError("Please wait while we check email availability");
       ok = false;
     }
 
@@ -135,22 +250,42 @@ const SignUp = () => {
           </View>
 
           <View style={styles.formSection}>
-            <RNPTextInput
-              style={styles.form}
-              label="Email"
-              placeholder="Email@address.com"
-              mode="outlined"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="next"
-              error={!!emailError}
-              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
-              value={email}
-              onChangeText={(t) => {
-                setEmail(t);
-                if (emailError) setEmailError("");
-              }}
-            />
+            <View style={styles.emailInputContainer}>
+              <RNPTextInput
+                style={styles.form}
+                label="Email"
+                placeholder="Email@address.com"
+                mode="outlined"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="next"
+                error={!!emailError}
+                theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+                value={email}
+                onChangeText={(t) => {
+                  setEmail(t);
+                  if (emailError) setEmailError("");
+                }}
+                right={
+                  emailStatus === 'checking' ? (
+                    <RNPTextInput.Icon 
+                      icon={() => <ActivityIndicator size={20} color={PINK} />} 
+                      key="checking"
+                    />
+                  ) : emailStatus === 'available' ? (
+                    <RNPTextInput.Icon 
+                      icon={() => <Icon name="checkmark-circle" size={20} color="#4CAF50" />} 
+                      key="available"
+                    />
+                  ) : emailStatus === 'taken' ? (
+                    <RNPTextInput.Icon 
+                      icon={() => <Icon name="close-circle" size={20} color="#f44336" />} 
+                      key="taken"
+                    />
+                  ) : null
+                }
+              />
+            </View>
             <HelperText type="error" visible={!!emailError}>{emailError}</HelperText>
 
             <RNPTextInput
@@ -253,10 +388,20 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 16,
   },
+  emailInputContainer: {
+    width: "100%",
+    marginBottom: 12,
+  },
   form: {
     width: "100%",
     marginBottom: 12,
     backgroundColor: "#fff",
+  },
+  successText: {
+    color: "#4CAF50",
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 8,
   },
   buttonPrimary: {
     backgroundColor: PINK,

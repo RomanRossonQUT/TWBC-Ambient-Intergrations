@@ -110,7 +110,11 @@ const UserProfile = ({ route }) => {
         <Image
           style={styles.profileImage}
           contentFit="cover"
-          source={require("../../assets/image-431.png")}
+          source={
+            userData.profileImageUrl 
+              ? { uri: userData.profileImageUrl }
+              : require("../../assets/image-431.png")
+          }
         />
 
         {/* Name & Details */}
@@ -189,7 +193,14 @@ const UserProfile = ({ route }) => {
  
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  scrollContainer: { paddingHorizontal: 20, paddingBottom: 100, alignItems: "center" },
+  scrollContainer: { 
+    paddingHorizontal: 20, 
+    paddingTop: 40, 
+    paddingBottom: 100, 
+    alignItems: "center",
+    justifyContent: "flex-start",
+    minHeight: "100%"
+  },
   profileImage: { width: 120, height: 120, borderRadius: 60, marginVertical: 15 },
   nameText: { fontSize: 24, fontWeight: "bold", color: "#000" },
   subText: { fontSize: 16, color: "#555", marginTop: 2 },
@@ -199,9 +210,9 @@ const styles = StyleSheet.create({
   switchButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#6C63FF", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   signOutButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#FF5A5F", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   buttonText: { color: "#fff", marginLeft: 5, fontWeight: "bold" },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 15, marginBottom: 8 },
-  aboutText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 10 },
-  chipsContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center" },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 25, marginBottom: 12 },
+  aboutText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 15, lineHeight: 22 },
+  chipsContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 10 },
   chip: {
     backgroundColor: "#ed469a",
     borderRadius: 20,

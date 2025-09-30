@@ -1,4 +1,3 @@
-// REVIEW
 import React from "react";
 import { Pressable, StyleSheet, View, Text, ScrollView } from "react-native";
 import { Image } from "expo-image";

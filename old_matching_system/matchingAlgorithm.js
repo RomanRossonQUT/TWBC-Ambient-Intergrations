@@ -1,4 +1,3 @@
-// REVIEW
 import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, getDocs, collection, query, where, getDoc, limit, addDoc, updateDoc, startAfter, increment, deleteDoc} from "firebase/firestore";
 import { db, auth } from '../firebaseConfig';
@@ -179,6 +178,12 @@ async function processLikedTags(rawLikedTags) {
 */
 async function updateLikedTags(pid, tagArray) {
     try {
+        // Validate required parameters
+        if (!pid || !tagArray) {
+            console.error('Error: pid and tagArray are required for updateLikedTags');
+            return false;
+        }
+
         const likedTagsSnap = await getDocs(query(collection(db, "LikedTags"), where("profileID", "==", pid)));
 
         const interestIDs = [];
@@ -259,9 +264,15 @@ async function updateLikedTags(pid, tagArray) {
                                     profileData, and profileTags
 */
 async function processMentors(MentorProfiles, iTagCount, sTagCount) {
+    console.log("processMentors called with:");
+    console.log("MentorProfiles size:", MentorProfiles.size);
+    console.log("iTagCount:", iTagCount);
+    console.log("sTagCount:", sTagCount);
+    
     const MentorsArray = [];
 
     MentorProfiles.forEach((doc) => {      
+        console.log("Processing mentor doc:", doc.data()["profileID"]);
         // -- store profile data --
         const profile = doc.data();
 
@@ -278,16 +289,42 @@ async function processMentors(MentorProfiles, iTagCount, sTagCount) {
 
         MentorsArray.push(mentor);
     });
+    
+    console.log("Created", MentorsArray.length, "mentor objects");
 
     // format the profile tags into one array of 0s and 1s for matching
-    for (i in MentorsArray) {
-        for (tag in MentorsArray[i]["profileData"]["interests"]) {
-            MentorsArray[i]["profileTags"][(MentorsArray[i]["profileData"]["interests"][tag] - 1)] = 1;
-        }
-        for (tag in MentorsArray[i]["profileData"]["skills"]) {
-            MentorsArray[i]["profileTags"][(MentorsArray[i]["profileData"]["skills"][tag] + (iTagCount - 1))] = 1;
+    for (let i = 0; i < MentorsArray.length; i++) {
+        try {
+            console.log(`Processing tags for mentor ${MentorsArray[i]["profileID"]}`);
+            
+            // Process interests if they exist
+            if (MentorsArray[i]["profileData"]["interests"] && Array.isArray(MentorsArray[i]["profileData"]["interests"])) {
+                console.log(`  interests: [${MentorsArray[i]["profileData"]["interests"].join(', ')}]`);
+                for (let j = 0; j < MentorsArray[i]["profileData"]["interests"].length; j++) {
+                    const tagIndex = MentorsArray[i]["profileData"]["interests"][j] - 1;
+                    if (tagIndex >= 0 && tagIndex < iTagCount) {
+                        MentorsArray[i]["profileTags"][tagIndex] = 1;
+                    }
+                }
+            }
+            
+            // Process skills if they exist
+            if (MentorsArray[i]["profileData"]["skills"] && Array.isArray(MentorsArray[i]["profileData"]["skills"])) {
+                console.log(`  skills: [${MentorsArray[i]["profileData"]["skills"].join(', ')}]`);
+                for (let j = 0; j < MentorsArray[i]["profileData"]["skills"].length; j++) {
+                    const tagIndex = MentorsArray[i]["profileData"]["skills"][j] + (iTagCount - 1);
+                    if (tagIndex >= iTagCount && tagIndex < (iTagCount + sTagCount)) {
+                        MentorsArray[i]["profileTags"][tagIndex] = 1;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(`Error processing mentor ${MentorsArray[i]["profileID"]}:`, error);
         }
     }
+    
+    console.log("processMentors completed, returning", MentorsArray.length, "mentors");
+    console.log("Sample mentor:", MentorsArray[0]);
 
     return MentorsArray;
 }
@@ -320,20 +357,30 @@ async function processMentors(MentorProfiles, iTagCount, sTagCount) {
                                                 OR explanation message if MentorsArray is null
 */
 async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
+    console.log("retrieveMentors called with:");
+    console.log("pid:", pid);
+    console.log("firstRun:", firstRun);
+    console.log("lastDoc:", lastDoc);
+    console.log("iTagCount:", iTagCount);
+    console.log("sTagCount:", sTagCount);
+    
     const plimit = RATELIMIT; // the number of profiles to call in one go, this value can be adjusted
 
     var MentorProfiles;
     // get a block of n = plimit unprocessed mentor profiles 
     if (firstRun) {
+        console.log("Getting first batch of mentors with limit:", plimit);
         MentorProfiles = await getDocs(query(collection(db, "Profiles"), where("profileType", "==", "Mentor"), limit(plimit)));
 
         if (MentorProfiles.empty) {
             // either no mentor profiles exist, or an error occurred.
             const msg = "Sorry! Either no mentors exist at this time, or an error has occurred retrieving them. Please try again later.";
+            console.log("No mentors found in first run");
             return [null, msg];
         }
 
     } else {
+        console.log("Getting next batch of mentors with startAfter");
         MentorProfiles = await getDocs(query(collection(db, "Profiles"), 
             where("profileType", "==", "Mentor"),
             startAfter(lastDoc),
@@ -342,28 +389,32 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
         if (MentorProfiles.empty) {
             // the mentee has looked through all mentor profiles
             const msg = "You've seen all of our available mentors, but more join all the time! Check in again later, or revisit skipped mentors in the meantime.";
+            console.log("No more mentors found");
             return [null, msg];
         }
     }
 
+    console.log("Found", MentorProfiles.size, "mentors");
     const newLastDoc = MentorProfiles.docs[MentorProfiles.docs.length-1];
 
     // process those mentors
-
+    console.log("Processing mentors...");
     let MentorsArray = await processMentors(MentorProfiles, iTagCount, sTagCount);
+    console.log("Processed mentors array length:", MentorsArray.length);
 
     // filter out any existing matches or move created but unresponded to front
-
+    console.log("Checking for existing matches for menteeID:", pid);
     const matchSnap = await getDocs(query(collection(db, "Matches"), where("menteeID", "==", pid)));
 
     if (!matchSnap.empty) {
+        console.log("Found", matchSnap.size, "existing matches");
         // if matches have already been made put them into an array
         const matchesToRemove = [];
         const matchesToAdd = [];
 
         //console.log("matches:");
         matchSnap.forEach((match) => {
-            //console.log(match.id, "=>", match.data()["mentorID"]);
+            console.log("Existing match:", match.id, "=>", match.data()["mentorID"], "state:", match.data()["state"]);
 
             // for matches created but not acknowledged add to list and delete from db
             if (match.data()["state"] == "Created") {
@@ -376,10 +427,15 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
             // we might get double ups
             matchesToRemove.push(match.data()["mentorID"]);
         });
+        
+        console.log("matchesToRemove:", matchesToRemove);
+        console.log("matchesToAdd:", matchesToAdd);
 
         // remove already viewed matches, if any
         if (matchesToRemove.length > 0) {
+            console.log("MentorsArray before filtering:", MentorsArray.length);
             MentorsArray = MentorsArray.filter((mentor) => !matchesToRemove.includes(mentor["profileID"]));
+            console.log("MentorsArray after filtering:", MentorsArray.length);
         }
 
         // add created but unacknowledged matches to start, if any
@@ -387,13 +443,13 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
             //console.log("matchesToAdd:", matchesToAdd);
             const profilesSnap = await getDocs(query(collection(db, "Profiles"), where("profileID", "in", matchesToAdd)));
             const createdArray = await processMentors(profilesSnap, iTagCount, sTagCount);
-            for (i in createdArray) {
+            for (let i = 0; i < createdArray.length; i++) {
                 MentorsArray.unshift(createdArray[i]);
             }
-            console.log("mentors array after adding created:", MentorsArray);
+            console.log("mentors array after adding created:", MentorsArray.length);
         }
 
-        //console.log(MentorsArray.length);
+        console.log("Final MentorsArray length:", MentorsArray.length);
     
         // if the array is now empty, run again for more profiles
         if (!MentorsArray.length) {
@@ -402,11 +458,13 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
             return [value1, value2]; // end function call here
         } else {
             // else return the processed mentors not yet matched to the mentee
+            console.log("retrieveMentors returning", MentorsArray.length, "mentors after filtering");
             return [MentorsArray, newLastDoc];
         }
 
     } else {
         // if nothing to filter, just return the processed mentors and a point to return to
+        console.log("retrieveMentors returning", MentorsArray.length, "mentors (no filtering)");
         return [MentorsArray, newLastDoc];
     }
 }
@@ -421,12 +479,23 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
     @return {number} distance : the distance between the two given points
 */
 async function euclideanDistance(array1, array2) {
-    let distance = 0;
-    for (i in array1) {
-        distance += (array1[i] + array2[i])^2;
-
+    console.log("euclideanDistance called with:");
+    console.log("array1:", array1);
+    console.log("array2:", array2);
+    
+    if (!array1 || !array2 || array1.length !== array2.length) {
+        console.error("Invalid arrays for euclideanDistance");
+        return Infinity;
     }
-    return distance;
+    
+    let distance = 0;
+    for (let i = 0; i < array1.length; i++) {
+        const diff = array1[i] - array2[i];
+        distance += Math.pow(diff, 2);
+    }
+    const result = Math.sqrt(distance);
+    console.log("euclideanDistance result:", result);
+    return result;
 }
 
 
@@ -444,6 +513,22 @@ async function euclideanDistance(array1, array2) {
     @return {array} newMentors : the array given for mentors with the best match removed
 */
 async function findMatchFromList(likedTags, mentors, menteeID) {
+    console.log("findMatchFromList called with:");
+    console.log("likedTags:", likedTags);
+    console.log("mentors length:", mentors ? mentors.length : "undefined");
+    console.log("menteeID:", menteeID);
+    
+    // Validate inputs
+    if (!mentors || !Array.isArray(mentors) || mentors.length === 0) {
+        console.error("Invalid mentors array in findMatchFromList");
+        return [null, mentors || []];
+    }
+    
+    if (!likedTags || !Array.isArray(likedTags)) {
+        console.error("Invalid likedTags array in findMatchFromList");
+        return [null, mentors];
+    }
+    
     let bestMatch = null;
     let bestDistance = null;
 
@@ -461,21 +546,39 @@ async function findMatchFromList(likedTags, mentors, menteeID) {
     //console.log(bestDistance);
     //console.log(bestMatch);
 
+    // Validate that we found a match
+    if (!bestMatch) {
+        console.error("No valid match found in findMatchFromList");
+        return [null, mentors];
+    }
+
+    console.log("Best match found:", bestMatch["profileID"], "with distance:", bestDistance);
+
     // add match to the database
-    addDoc(collection(db, "Matches"), {
-        menteeID: menteeID,
-        mentorID: bestMatch["profileID"],
-        menteeApproved: null,
-        mentorApproved: null,
-        state: "Created"
-    })
+    try {
+        console.log("Adding match to database...");
+        await addDoc(collection(db, "Matches"), {
+            menteeID: menteeID,
+            mentorID: bestMatch["profileID"],
+            menteeApproved: null,
+            mentorApproved: null,
+            state: "Created"
+        });
+        console.log("Match added to database successfully");
+    } catch (error) {
+        console.error("Error adding match to database:", error);
+        // Continue anyway - don't let database errors break the matching
+    }
 
     // remove match from the available list
     newMentors = mentors.filter(function(item) {
         return item != bestMatch
     })
 
-    //console.log("new mentors list:", newMentors);
+    console.log("Removed best match from list, remaining mentors:", newMentors.length);
+    console.log("Returning bestMatch and newMentors");
+    console.log("bestMatch:", bestMatch);
+    console.log("newMentors length:", newMentors.length);
 
     return [bestMatch, newMentors];
 }
@@ -495,8 +598,19 @@ async function findMatchFromList(likedTags, mentors, menteeID) {
 */
 async function updateMatch(menteeID, mentorID, menteeApproved = null, mentorApproved = null, state = null) {
     try {
+        // Validate required parameters
+        if (!menteeID || !mentorID) {
+            console.error('Error: menteeID and mentorID are required for updateMatch');
+            return false;
+        }
 
         const matchSnap = await getDocs(query(collection(db, "Matches"), where("mentorID", "==", mentorID), where("menteeID", "==", menteeID)));
+        
+        if (matchSnap.empty) {
+            console.error('Error: No match found with the given menteeID and mentorID');
+            return false;
+        }
+        
         const match = matchSnap.docs[0];
 
         if (mentorApproved != null) {
@@ -660,6 +774,11 @@ async function deleteMatches(IDs, statesToDelete, type = "Mentee") {
     @return {type} <variable name> : <variable description>
 */
 async function setUpMatching(uid, firstBatch = true, lastDoc = null) {
+    console.log("setUpMatching called with:");
+    console.log("uid:", uid);
+    console.log("firstBatch:", firstBatch);
+    console.log("lastDoc:", lastDoc);
+    
     // retrieving the liked tags as their raw count values
     console.log();
     console.log(" --- retrieving & processing liked tags ---");
@@ -677,6 +796,12 @@ async function setUpMatching(uid, firstBatch = true, lastDoc = null) {
     console.log();
     const [mentors, newLastDoc] = await retrieveMentors(pid, firstBatch, lastDoc, iTagCount, sTagCount);
 
+    console.log("setUpMatching returning:");
+    console.log("pid:", pid);
+    console.log("normLikedTags:", normLikedTags);
+    console.log("mentors:", mentors);
+    console.log("newLastDoc:", newLastDoc);
+
     return [pid, normLikedTags, mentors, newLastDoc];
 }
 
@@ -692,13 +817,19 @@ async function menteeRespondToMatch(response, menteeID, mentorID) {
     //console.log(mentor["profileID"]);
 
     // update the database
-
-    if (response == "Approve") {
-        updateMatch(menteeID, mentorID, true, null, "Pending");
-    } else if (response == "Decline") {
-        updateMatch(menteeID, mentorID, false, null, "Rejected");
-    } else {
-        console.error("Error: Invalid mentee response.");
+    try {
+        if (response == "Approve") {
+            await updateMatch(menteeID, mentorID, true, null, "Pending");
+        } else if (response == "Decline") {
+            await updateMatch(menteeID, mentorID, false, null, "Rejected");
+        } else {
+            console.error("Error: Invalid mentee response.");
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Error in menteeRespondToMatch:', error);
+        return false;
     }
 }
 
@@ -724,6 +855,58 @@ async function mentorRespondToMatch(response, mentorID, menteeID) {
 
 
 
+/*
+    Simple function to check if there are any mentors in the database
+    Useful for debugging mentor availability issues
+*/
+async function checkMentorCount() {
+    try {
+        const mentorsSnap = await getDocs(query(collection(db, "Profiles"), where("profileType", "==", "Mentor")));
+        console.log("Total mentors in database:", mentorsSnap.size);
+        
+        if (mentorsSnap.size > 0) {
+            console.log("Sample mentor data:");
+            mentorsSnap.docs.slice(0, 2).forEach((doc, index) => {
+                console.log(`Mentor ${index + 1}:`, {
+                    id: doc.id,
+                    profileID: doc.data().profileID,
+                    firstName: doc.data().firstName,
+                    lastName: doc.data().lastName,
+                    interests: doc.data().interests,
+                    skills: doc.data().skills
+                });
+            });
+        }
+        
+        return mentorsSnap.size;
+    } catch (error) {
+        console.error("Error checking mentor count:", error);
+        return 0;
+    }
+}
+
+/*
+    Function to check if Matches collection exists and create a sample document if needed
+    This helps ensure the collection structure is properly set up
+*/
+async function ensureMatchesCollection() {
+    try {
+        console.log("Checking Matches collection...");
+        const matchesSnap = await getDocs(collection(db, "Matches"));
+        console.log("Matches collection exists with", matchesSnap.size, "documents");
+        
+        if (matchesSnap.size === 0) {
+            console.log("Matches collection is empty - this is normal for a new setup");
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("Error checking Matches collection:", error);
+        console.log("This might mean the Matches collection doesn't exist yet");
+        return false;
+    }
+}
+
 export { setUpMatching, 
     findMatchFromList, 
     menteeRespondToMatch, 
@@ -731,4 +914,6 @@ export { setUpMatching,
     retrieveMentors, 
     retrieveMatches,
     mentorRespondToMatch,
-    deleteMatches }
+    deleteMatches,
+    checkMentorCount,
+    ensureMatchesCollection }

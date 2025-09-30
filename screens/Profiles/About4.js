@@ -1,25 +1,66 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet, View, Text, ScrollView, TextInput } from "react-native";
+import { Pressable, StyleSheet, View, Text, ScrollView, TextInput, Alert } from "react-native";
 import { Image } from "expo-image";
 import { ProgressBar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from '../../firebaseConfig';
+import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const About4 = ({ route }) => {
   const navigation = useNavigation();
   const { uid, pid, type } = route.params;
   const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
+
+  const pickImage = async () => {
+    try {
+      // Request permission to access media library
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert("Permission Required", "Permission to access camera roll is required!");
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setProfileImage(result.assets[0].uri);
+        console.log("[DATA] Profile image selected:", result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("[ERROR] Error picking image:", error);
+      Alert.alert("Error", "Failed to pick image. Please try again.");
+    }
+  };
 
   const saveData = async () => {
-    // Save the user's bio in Firebase
-    await setDoc(doc(db, "Profiles", pid.toString()), {
-      bio: bio,
-    }, { merge: true });
+    try {
+      console.log("[DEBUG] Saving bio and profile data");
+      console.log("[DATA] Bio:", bio);
+      console.log("[DATA] Profile image:", profileImage);
 
-    // Navigate to the Home screen after saving the bio
-    navigation.navigate("Home", {uid, pid, type});
+      // Save the user's bio and profile image in Firebase
+      await setDoc(doc(db, "Profiles", pid.toString()), {
+        bio: bio,
+        profileImageUrl: profileImage || null, // Save image URI or null if no image
+      }, { merge: true });
+
+      console.log("[SUCCESS] Bio and profile data saved successfully");
+      
+      // Navigate to the Home screen after saving
+      navigation.navigate("Home", {uid, pid, type});
+    } catch (error) {
+      console.error("[ERROR] Error saving bio and profile data:", error);
+      Alert.alert("Error", "Failed to save profile. Please try again.");
+    }
   };
 
   return (
@@ -45,12 +86,38 @@ const About4 = ({ route }) => {
         <View style={styles.info}>
           <Text style={styles.tellUsMore}>Tell us more about you!</Text>
         </View>
-        <TextInput
-          placeholder="Enter Bio"
-          value={bio}
-          onChangeText={(text) => setBio(text)}
-          style={styles.input}
-        />
+        
+        {/* Profile Picture Section */}
+        <View style={styles.profilePictureSection}>
+          <Text style={styles.sectionTitle}>Add a Profile Picture</Text>
+          <Pressable style={styles.profilePictureContainer} onPress={pickImage}>
+            {profileImage ? (
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profilePicture}
+                contentFit="cover"
+              />
+            ) : (
+              <View style={styles.profilePicturePlaceholder}>
+                <Icon name="camera" size={40} color="#666" />
+              </View>
+            )}
+          </Pressable>
+        </View>
+
+        {/* Bio Section */}
+        <View style={styles.bioSection}>
+          <Text style={styles.sectionTitle}>Tell us about yourself</Text>
+          <TextInput
+            placeholder="Enter your bio here..."
+            value={bio}
+            onChangeText={(text) => setBio(text)}
+            style={styles.input}
+            multiline={true}
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+        </View>
         <View style={styles.buttonsContainer}>
           <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={24} color="#fff" />
@@ -114,6 +181,43 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 20,
     fontSize: 16,
+    minHeight: 100,
+  },
+  profilePictureSection: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  bioSection: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "Raleway-Bold",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  profilePictureContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#ed469a",
+    borderStyle: "dashed",
+  },
+  profilePicture: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  profilePicturePlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonsContainer: {
     flexDirection: "row",

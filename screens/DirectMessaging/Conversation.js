@@ -30,6 +30,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../../firebaseConfig";
+import notificationService from "../../services/notificationService";
 
 const PINK_BUBBLE = "#FFB6C1";
 const PINK_PRIMARY = "#ED469A";
@@ -176,31 +177,39 @@ export default function Conversation({ route }) {
     if (!imageUri) return null;
 
     try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-
+      // For React Native, we need to use a different approach
       const formData = new FormData();
-      formData.append("file", blob);
+      
+      // Create a file object for React Native
+      formData.append("file", {
+        uri: imageUri,
+        type: "image/jpeg",
+        name: "image.jpg",
+      });
+      
+      // Use unsigned upload preset
       formData.append("upload_preset", "uploads");
-      formData.append("api_key", process.env.CLOUDINARY_API_KEY); // Use API key from .env
-      formData.append("api_secret", process.env.CLOUDINARY_API_SECRET); // Use API secret from .env
 
       const res = await fetch("https://api.cloudinary.com/v1_1/de5xybldg/image/upload", {
         method: "POST",
         body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        console.error("Cloudinary upload error response:", errorData);
+        console.error("[ERROR] Cloudinary upload error response:", errorData);
         Alert.alert("Upload failed", "Could not upload the image. Please try again.");
         return null;
       }
 
       const data = await res.json();
+      console.log("[SUCCESS] Image uploaded to Cloudinary:", data.secure_url);
       return data.secure_url;
     } catch (error) {
-      console.error("Error uploading image to Cloudinary:", error);
+      console.error("[ERROR] Error uploading image to Cloudinary:", error);
       Alert.alert("Upload failed", "Could not upload the image. Please try again.");
       return null;
     }
@@ -220,6 +229,39 @@ export default function Conversation({ route }) {
         imageUrl: imageUrl || null,
         timestamp: new Date(),
       });
+      
+      // Send push notification to the other user
+      try {
+        // Get the other user's push token (you'd need to store this in your user profile)
+        // For now, we'll send a local notification as a fallback
+        const notificationTitle = otherUserName;
+        const notificationBody = text || "Image shared";
+        
+        // Send local notification (works when app is in background)
+        await notificationService.sendLocalNotification(
+          notificationTitle,
+          notificationBody,
+          {
+            type: 'message',
+            conversationId: chatId,
+            senderId: currentUserId,
+            senderName: otherUserName
+          }
+        );
+        
+        // TODO: Send push notification to other user's device
+        // This would require storing push tokens in user profiles
+        // await notificationService.sendPushNotification(
+        //   otherUserPushToken,
+        //   notificationTitle,
+        //   notificationBody,
+        //   { type: 'message', conversationId: chatId }
+        // );
+      } catch (notificationError) {
+        console.log('Notification error:', notificationError);
+        // Don't fail the message send if notification fails
+      }
+      
       setNewMessage("");
       setImageUri(null);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);

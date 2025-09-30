@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   dontHaveAnBtn1: { marginTop: 10 },
   loginAccountFlexBox: { justifyContent: "center", alignItems: "center" },
   infoCommon: { gap: 20, overflow: "hidden" },
-  loginToAccountFlexBox: { textAlign: "left", color: "#000", alignSelf: "stretch" },
+  loginToAccountFlexBox: { textAlign: "center", color: "#000", alignSelf: "stretch" },
   loginSectionSpaceBlock: { paddingVertical: 10, paddingHorizontal: 0, alignSelf: "stretch" },
   viewDetailsTypo: { fontFamily: "Raleway-Bold", fontWeight: "700" },
   icon: { height: "100%", width: "100%" },

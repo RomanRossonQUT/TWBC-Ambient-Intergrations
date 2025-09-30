@@ -8,10 +8,13 @@
 // - Preserves current behavior: numeric tag IDs, simple toggling logic.
 // -----------------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert } from "react-native";
+import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { db } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import * as ImagePicker from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const EditProfile = ({ route }) => {
   const navigation = useNavigation();
@@ -26,10 +29,38 @@ const EditProfile = ({ route }) => {
     bio: "",
     skills: [],
     interests: [],
+    profileImageUrl: "",
   });
 
   const [allSkills, setAllSkills] = useState([]);
   const [allInterests, setAllInterests] = useState([]);
+
+  const pickImage = async () => {
+    try {
+      // Request permission to access media library
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert("Permission Required", "Permission to access camera roll is required!");
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setFormData(prev => ({ ...prev, profileImageUrl: result.assets[0].uri }));
+        console.log("[DATA] Profile image selected:", result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("[ERROR] Error picking image:", error);
+      Alert.alert("Error", "Failed to pick image. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,6 +79,7 @@ const EditProfile = ({ route }) => {
             bio: data.bio || "",
             skills: data.skills || [],
             interests: data.interests || [],
+            profileImageUrl: data.profileImageUrl || "",
           });
         }
       } catch (error) {
@@ -106,6 +138,7 @@ const EditProfile = ({ route }) => {
         bio: formData.bio,
         skills: formData.skills,
         interests: formData.interests,
+        profileImageUrl: formData.profileImageUrl,
       });
 
       navigation.navigate("UserProfile", { uid, pid, type });
@@ -117,6 +150,24 @@ const EditProfile = ({ route }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Edit Profile</Text>
+
+      {/* Profile Picture Section */}
+      <View style={styles.profilePictureSection}>
+        <Text style={styles.subTitle}>Profile Picture</Text>
+        <Pressable style={styles.profilePictureContainer} onPress={pickImage}>
+          {formData.profileImageUrl ? (
+            <Image
+              source={{ uri: formData.profileImageUrl }}
+              style={styles.profilePicture}
+              contentFit="cover"
+            />
+          ) : (
+            <View style={styles.profilePicturePlaceholder}>
+              <Icon name="camera" size={40} color="#666" />
+            </View>
+          )}
+        </Pressable>
+      </View>
 
       <TextInput
         style={styles.input}
@@ -236,6 +287,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginVertical: 10,
+  },
+  profilePictureSection: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  profilePictureContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#ed469a",
+    borderStyle: "dashed",
+  },
+  profilePicture: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  profilePicturePlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   tagsContainer: {
     flexDirection: "row",

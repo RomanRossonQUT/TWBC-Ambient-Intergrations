@@ -1,4 +1,3 @@
-// REVIEW
 // -----------------------------------------------------------------------------
 // Purpose: Screen shown when a mentee has exhausted the pool of available mentors.
 // Features:

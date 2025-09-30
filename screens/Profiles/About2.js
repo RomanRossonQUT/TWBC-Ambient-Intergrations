@@ -25,19 +25,27 @@ const About2 = ({ route }) => {
   };
 
   const saveData = async () => {
-    console.log(activeButtons);
-    const selectedInterests = Object.keys(activeButtons).filter((key) => activeButtons[key]).map(Number);
+    try {
+      console.log("[DEBUG] Active buttons:", activeButtons);
+      const selectedInterests = Object.keys(activeButtons).filter((key) => activeButtons[key]).map(Number);
 
-    for (i in selectedInterests) {
-      selectedInterests[i] += 1;
+      // Convert to 1-based indexing for database storage
+      for (let i = 0; i < selectedInterests.length; i++) {
+        selectedInterests[i] += 1;
+      }
+      console.log("[DATA] Selected interests:", selectedInterests);
+
+      await setDoc(doc(db, "Profiles", pid.toString()), {
+        interests: selectedInterests,
+      }, { merge: true });
+
+      console.log("[SUCCESS] Interests saved successfully");
+      navigation.navigate("About3", { uid, pid, type });
+    } catch (error) {
+      console.error("[ERROR] Error saving interests:", error);
+      // Still navigate to next screen even if save fails
+      navigation.navigate("About3", { uid, pid, type });
     }
-    console.log(selectedInterests);
-
-    await setDoc(doc(db, "Profiles", pid.toString()), {
-      interests: selectedInterests,
-    }, { merge: true });
-
-    navigation.navigate("About3", { uid, pid, type });
   };
 
   return (

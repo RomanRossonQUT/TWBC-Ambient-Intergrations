@@ -2,7 +2,7 @@
 // Purpose: Welcome screen after login/profile creation.
 // Features:
 // - Greets user and explains mentor matching.
-// - Routes mentees to InteractiveMatching and mentors to MENTORSCREEN3.
+// - Routes both mentors and mentees to InteractiveMatching for the same matching experience.
 // - Uses Navbar for bottom navigation.
 // -----------------------------------------------------------------------------
 
@@ -25,13 +25,9 @@ const Home = ({route}) => {
 
   console.log(uid, pid, type);
 
-  // Navigate to the appropriate matching screen based on user type
+  // Navigate to the matching screen - both mentors and mentees use the same system
   const navToMatching = async () => {
-    if (type == "Mentor") {
-      navigation.navigate('MENTORSCREEN3', {uid, pid, type})
-    } else {
-      navigation.navigate('InteractiveMatching', {uid, pid, type})
-    }
+    navigation.navigate('MentorMatching', {uid, pid, type})
   }
 
 
@@ -47,14 +43,20 @@ const Home = ({route}) => {
           />
           <View style={styles.info}>
             <Text style={[styles.mentorMatching, styles.viewDetailsTypo]}>
-              Welcome!
+              Welcome to Your Journey!
             </Text>
             <Text style={styles.mentorMatchingAllowsContainer}>
               <Text style={styles.mentorMatchingAllows}>
-                {`Mentor Matching allows you to connect with and receive education from a team of high-level experts and leaders.\n\nOpting in will allow you to select through recommended mentors based on your interests and skills.\n\n`}
+                {type === "Mentee" 
+                  ? `Connect with amazing mentors who share your interests and can help you grow professionally.\n\nOur smart matching system finds mentors based on your skills, interests, and career goals.\n\n`
+                  : `Connect with talented mentees who can benefit from your expertise and guidance.\n\nOur smart matching system finds mentees based on their interests and career aspirations.\n\n`
+                }
               </Text>
               <Text style={[styles.letsGetStarted, styles.viewDetailsTypo]}>
-                Let's get started!
+                {type === "Mentee" 
+                  ? "Ready to find your perfect mentor match?"
+                  : "Ready to find mentees you can help?"
+                }
               </Text>
             </Text>
           </View>
@@ -66,7 +68,7 @@ const Home = ({route}) => {
               onPress={navToMatching}
             >
               <Text style={[styles.viewDetails, styles.viewDetailsTypo]}>
-                Opt-in
+                Start Matching
               </Text>
             </TouchableOpacity>
           </Pressable>

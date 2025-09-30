@@ -16,7 +16,7 @@ import AboutMe from "../../components/AboutMe";
 import Skills from "../../components/Skills";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebaseConfig';
-import { setUpMatching, findMatchFromList, menteeRespondToMatch, updateLikedTags } from "../../mentor_matching/matchingAlgorithm";
+import { setUpMatching, findMatchFromList, menteeRespondToMatch, updateLikedTags, checkMentorCount, ensureMatchesCollection, euclideanDistance } from "../../mentor_matching/matchingAlgorithm";
 import Navbar from "../../components/Navbar";
 
 // Define possible skills and interests
@@ -55,6 +55,22 @@ const InteractiveMatching = ({ route }) => {
   const navigation = useNavigation();
   const {uid, pid, type} = route.params;
 
+  // Add a manual trigger for testing
+  const triggerMatching = () => {
+    console.log("Manual trigger called");
+    console.log("Current state:");
+    console.log("mentorsList:", mentorsList);
+    console.log("likedTags:", likedTags);
+    console.log("profileID:", profileID);
+    console.log("pid:", pid);
+    
+    if (mentorsList && mentorsList.length > 0 && likedTags) {
+      findAndDisplayMatch();
+    } else {
+      console.log("Cannot trigger matching - missing data");
+    }
+  };
+
   useEffect(() => {
     setUID(uid);
   }, []);
@@ -64,12 +80,42 @@ const InteractiveMatching = ({ route }) => {
     console.log(" --- approving match ---");
     console.log();
 
-    // approve the match
-    await menteeRespondToMatch("Approve", profileID, currentMentor["profileID"]);
-    
-    // update the mentee liked tags array
-    const updatedLikedTags = await updateLikedTags(profileID, currentMentor["profileTags"]);
-    setLikedTags(updatedLikedTags);
+    try {
+      // Debug logging
+      console.log("profileID:", profileID);
+      console.log("currentMentor:", currentMentor);
+      console.log("pid from route:", pid);
+      
+      // Use pid from route params if profileID state is not set yet
+      const menteeID = profileID || pid;
+      
+      // Validate that we have the required data
+      if (!menteeID || !currentMentor || !currentMentor["profileID"]) {
+        console.error("Missing required data for approving match");
+        console.error("menteeID:", menteeID);
+        console.error("currentMentor:", currentMentor);
+        return;
+      }
+
+      // approve the match
+      const success = await menteeRespondToMatch("Approve", menteeID, currentMentor["profileID"]);
+      
+      if (success) {
+        // update the mentee liked tags array
+        if (currentMentor["profileTags"]) {
+          const updatedLikedTags = await updateLikedTags(menteeID, currentMentor["profileTags"]);
+          if (updatedLikedTags) {
+            setLikedTags(updatedLikedTags);
+          }
+        } else {
+          console.warn("No profile tags available for mentor, skipping tag update");
+        }
+      } else {
+        console.error("Failed to approve match");
+      }
+    } catch (error) {
+      console.error("Error in approveMatch:", error);
+    }
   };
 
   const declineMatch = async () => {
@@ -77,17 +123,75 @@ const InteractiveMatching = ({ route }) => {
     console.log(" --- declining match ---");
     console.log();
 
-    // decline the match
-    await menteeRespondToMatch("Decline", profileID, currentMentor["profileID"]);
+    try {
+      // Debug logging
+      console.log("profileID:", profileID);
+      console.log("currentMentor:", currentMentor);
+      console.log("pid from route:", pid);
+      
+      // Use pid from route params if profileID state is not set yet
+      const menteeID = profileID || pid;
+      
+      // Validate that we have the required data
+      if (!menteeID || !currentMentor || !currentMentor["profileID"]) {
+        console.error("Missing required data for declining match");
+        console.error("menteeID:", menteeID);
+        console.error("currentMentor:", currentMentor);
+        return;
+      }
+
+      // decline the match
+      const success = await menteeRespondToMatch("Decline", menteeID, currentMentor["profileID"]);
+      
+      if (success) {
+        // move onto next match
+        findAndDisplayMatch();
+      } else {
+        console.error("Failed to decline match");
+      }
+    } catch (error) {
+      console.error("Error in declineMatch:", error);
+    }
+  };
+
+  // Simple function to find best match without touching database
+  const findBestMatchFromList = async (likedTags, mentors) => {
+    console.log("findBestMatchFromList called with:", mentors.length, "mentors");
     
-    // move onto next match
-    findAndDisplayMatch();
+    if (!mentors || mentors.length === 0) {
+      console.log("No mentors provided");
+      return null;
+    }
+    
+    let bestMatch = null;
+    let bestDistance = Infinity;
+    
+    for (let i = 0; i < mentors.length; i++) {
+      const distance = await euclideanDistance(likedTags, mentors[i]["profileTags"]);
+      console.log(`Mentor ${mentors[i]["profileID"]} distance:`, distance);
+      
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestMatch = mentors[i];
+      }
+    }
+    
+    console.log("Best match found:", bestMatch ? bestMatch["profileID"] : "none", "with distance:", bestDistance);
+    return bestMatch;
   };
 
   const findAndDisplayMatch = async () => {
+    console.log("=== findAndDisplayMatch called ===");
+    console.log("mentorsList length:", mentorsList ? mentorsList.length : "undefined");
+    console.log("mentorsList:", mentorsList);
+    console.log("likedTags:", likedTags);
+    console.log("profileID:", profileID);
+    console.log("pid:", pid);
+    console.log("currentMentor before:", currentMentor);
 
     // check if this batch of mentors is empty
-    if (!mentorsList.length) {
+    if (!mentorsList || !mentorsList.length) {
+      console.log("No mentors in list, getting more mentors");
       //navigation.navigate("ResetMatches", {uid, pid, type});
       
       // empty array, get more mentors
@@ -100,14 +204,32 @@ const InteractiveMatching = ({ route }) => {
       console.log(" --- finding a mentor --- ");
       console.log();
 
-      const [suggestedMentor, updatedMentorsList] = await findMatchFromList(likedTags, mentorsList, profileID);
+      // Use our simple function instead of the algorithm's findMatchFromList
+      const suggestedMentor = await findBestMatchFromList(likedTags, mentorsList);
+      
+      console.log("findBestMatchFromList returned:", suggestedMentor);
 
-      console.log("suggested match:", suggestedMentor);
-      console.log("updated list:", updatedMentorsList);
+      // Validate suggestedMentor before setting it
+      if (!suggestedMentor || !suggestedMentor["profileID"]) {
+        console.error("Invalid suggestedMentor:", suggestedMentor);
+        console.log("This means findMatchFromList returned null for suggestedMentor");
+        return;
+      }
 
-      // update mentorList & suggest mentor
-      setMentorsList(updatedMentorsList);
+      console.log("Setting currentMentor to:", suggestedMentor);
       setCurrentMentor(suggestedMentor);
+      
+      console.log("State updated - currentMentor should now be set");
+      console.log("Mentor profileID:", suggestedMentor["profileID"]);
+      console.log("Mentor name:", suggestedMentor["profileData"]["firstName"], suggestedMentor["profileData"]["lastName"]);
+      
+      // Test if state was actually set
+      setTimeout(() => {
+        console.log("=== STATE CHECK AFTER TIMEOUT ===");
+        console.log("currentMentor after setState:", currentMentor);
+        console.log("firstName after setState:", firstName);
+        console.log("lastName after setState:", lastName);
+      }, 100);
 
       // set values to display
       setFirstName(suggestedMentor["profileData"]["firstName"]);
@@ -124,35 +246,61 @@ const InteractiveMatching = ({ route }) => {
   };
 
   const setUpMentorMatching = async (firstBatch = true) => {
+    console.log("setUpMentorMatching called with firstBatch:", firstBatch);
+    console.log("userID:", userID);
+    console.log("lastDoc:", lastDoc);
         
     // set up the mentor matching
     const [newPID, newLikedTags, newMentorList, newLastDoc] = await setUpMatching(userID, firstBatch, lastDoc);
 
+    console.log("setUpMatching returned:");
+    console.log("newPID:", newPID);
+    console.log("newLikedTags:", newLikedTags);
+    console.log("newMentorList:", newMentorList);
+    console.log("newLastDoc:", newLastDoc);
+
     // check if it returned mentors to run through
     if (newMentorList == null) {
+      console.log("No mentors returned, navigating to ResetMatches");
       console.log(newLastDoc); // in this case, newLastDoc actually is a string, we dont use it tho lol
       navigation.navigate("ResetMatches", {uid, pid, type});
 
     } else { 
+      console.log("Setting up mentor matching with", newMentorList.length, "mentors");
       setPID(newPID);
       setMentorsList(newMentorList);
       setLastDoc(newLastDoc);
       setLikedTags(newLikedTags);
+      
+      // Immediately try to find and display a match
+      console.log("Calling findAndDisplayMatch directly after setup");
+      setTimeout(() => {
+        findAndDisplayMatch();
+      }, 100);
     }
   };
 
   useEffect(() => {
     if (userID && firstRun) {
       setFirstRun(false);
-      setUpMentorMatching();
+      // Check mentor count and Matches collection first for debugging
+      Promise.all([
+        checkMentorCount(),
+        ensureMatchesCollection()
+      ]).then(([count, matchesExists]) => {
+        console.log("Mentor count check completed:", count);
+        console.log("Matches collection check completed:", matchesExists);
+        setUpMentorMatching();
+      });
     }
   }, [userID]);
 
   useEffect(() => {
-    if (likedTags) {
+    if (likedTags && mentorsList && mentorsList.length > 0) {
+      console.log("useEffect triggered - likedTags and mentorsList are ready");
       findAndDisplayMatch();
     }
-  }, [likedTags]);
+  }, [likedTags, mentorsList]);
 
   // Map numeric indexes to actual interest and skill strings
   const displayInterests = interests.map(i => possibleInterests[i] || "Unknown Interest");
@@ -169,6 +317,9 @@ const InteractiveMatching = ({ route }) => {
                 contentFit="cover"
                 source={require("../../assets/cross-icon.png")}
               />
+            </Pressable>
+            <Pressable onPress={triggerMatching} style={{backgroundColor: 'blue', padding: 10, borderRadius: 5}}>
+              <Text style={{color: 'white', fontSize: 12}}>Trigger Match</Text>
             </Pressable>
             <Image
               style={styles.headerChild}

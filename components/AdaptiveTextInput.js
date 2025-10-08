@@ -108,7 +108,7 @@ const AdaptiveTextInput = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   input: {
     height: 70,

@@ -298,6 +298,7 @@ const SignUp = () => {
               secureTextEntry
               error={!!passwordError}
             />
+            <HelperText type="error" visible={!!passwordError}>{passwordError}</HelperText>
 
             <AdaptiveTextInput
               placeholder="Confirm Password"
@@ -309,6 +310,7 @@ const SignUp = () => {
               secureTextEntry
               error={!!confirmError}
             />
+            <HelperText type="error" visible={!!confirmError}>{confirmError}</HelperText>
           </View>
 
           <Pressable

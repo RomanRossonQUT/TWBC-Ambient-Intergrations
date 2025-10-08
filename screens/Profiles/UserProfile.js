@@ -247,8 +247,8 @@ const styles = StyleSheet.create({
   switchButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#6C63FF", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   signOutButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#FF5A5F", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   buttonText: { color: "#fff", marginLeft: 5, fontWeight: "bold" },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 15, marginBottom: 8 },
-  aboutText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 15, lineHeight: 22 },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 8, marginBottom: 8 },
+  aboutText: { fontSize: 15, color: "#333", textAlign: "center", lineHeight: 22 },
   chipsContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 10 },
   chip: {
     backgroundColor: "#ed469a",

@@ -23,9 +23,9 @@ User 1: Sarah Chen
 
 -   Bio: "Recent graduate passionate about content creation and business strategy. Looking to learn from experienced professionals in content writing and business development to build my career in the industry."
 
--   Interests: Business, Content Writing, Management, Communication, Creativity
+-   Interests: Business, Content Writing, Management, Development, Health
 
--   Skills: Content Writing, Communication, Creativity, Leadership, Management
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -49,7 +49,7 @@ User 1: Sarah Chen
 
 -   Bio: "10+ years in business development with expertise in content strategy, team leadership, and business growth. Passionate about mentoring the next generation of business professionals and sharing insights from scaling businesses."
 
--   Interests: Business, Management, Leadership, Development, Communication
+-   Interests: Business, Management, Development, Content Writing, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -80,9 +80,9 @@ User 2: Marcus Johnson
 
 -   Bio: "Self-taught developer transitioning from finance to tech. Eager to learn best practices, development methodologies, and career advancement strategies from experienced developers."
 
--   Interests: Development, Business, Management, Communication, Creativity
+-   Interests: Development, Business, Management, Law, Health
 
--   Skills: Development, Communication, Creativity, Leadership, Management
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -106,7 +106,7 @@ User 2: Marcus Johnson
 
 -   Bio: "15+ years in software development with expertise in development methodologies, team leadership, and mentoring. Former finance professional who successfully transitioned to tech and loves helping others make similar career changes."
 
--   Interests: Development, Management, Leadership, Business, Communication
+-   Interests: Development, Management, Business, Law, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -137,9 +137,9 @@ User 3: Priya Patel
 
 -   Bio: "Health professional looking to transition into business strategy and operations. Seeking guidance on bridging health knowledge with business acumen."
 
--   Interests: Health, Business, Management, Communication, Leadership
+-   Interests: Health, Business, Management, Law, Development
 
--   Skills: Communication, Leadership, Management, Development, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -163,7 +163,7 @@ User 3: Priya Patel
 
 -   Bio: "20+ years in health operations and business strategy. Expert in bridging health and business worlds, with extensive experience in health innovation and process optimization."
 
--   Interests: Health, Business, Management, Leadership, Development
+-   Interests: Health, Business, Management, Law, Development
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -194,9 +194,9 @@ User 4: David Kim
 
 -   Bio: "Creative videographer looking to expand into business content creation and learn about creative strategy and management. Passionate about creating engaging visual content."
 
--   Interests: Videography, Creativity, Business, Management, Communication
+-   Interests: Videography, Business, Management, Development, Health
 
--   Skills: Creativity, Communication, Development, Leadership, Management
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -220,7 +220,7 @@ User 4: David Kim
 
 -   Bio: "12+ years in videography and creative direction with expertise in creative strategy, team leadership, and business development. Passionate about mentoring creatives and helping them build successful careers."
 
--   Interests: Videography, Creativity, Business, Management, Leadership
+-   Interests: Videography, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -251,9 +251,9 @@ User 5: Elena Rodriguez
 
 -   Bio: "Ambitious hospitality professional looking to advance into management and learn about team leadership, business strategy, and client relationship management."
 
--   Interests: Hospitality, Business, Management, Communication, Leadership
+-   Interests: Hospitality, Business, Management, Development, Health
 
--   Skills: Communication, Leadership, Management, Development, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -277,7 +277,7 @@ User 5: Elena Rodriguez
 
 -   Bio: "18+ years in hospitality and management across multiple industries. Expert in building high-performing teams, strategic planning, and international business development."
 
--   Interests: Hospitality, Business, Management, Leadership, Development
+-   Interests: Hospitality, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -308,9 +308,9 @@ User 6: James Wilson
 
 -   Bio: "Law professional looking to transition into business development and learn about management, strategic planning, and career progression in business."
 
--   Interests: Law, Business, Management, Communication, Leadership
+-   Interests: Law, Business, Management, Development, Health
 
--   Skills: Communication, Leadership, Management, Development, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -334,7 +334,7 @@ User 6: James Wilson
 
 -   Bio: "14+ years in law and business development with expertise in legal strategy, team leadership, and business growth. Passionate about mentoring legal professionals and sharing insights from building successful practices."
 
--   Interests: Law, Business, Management, Leadership, Development
+-   Interests: Law, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -365,9 +365,9 @@ User 7: Aisha Okafor
 
 -   Bio: "Aspiring entrepreneur looking to advance into business management and learn about leadership, strategic planning, and business development strategies."
 
--   Interests: Entrepreneur, Business, Management, Communication, Leadership
+-   Interests: Entrepreneur, Business, Management, Development, Health
 
--   Skills: Communication, Leadership, Management, Development, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -391,7 +391,7 @@ User 7: Aisha Okafor
 
 -   Bio: "16+ years in entrepreneurship and business development with expertise in business strategy, team leadership, and growth. Passionate about building successful businesses and mentoring entrepreneurs."
 
--   Interests: Entrepreneur, Business, Management, Leadership, Development
+-   Interests: Entrepreneur, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -422,9 +422,9 @@ User 8: Michael Thompson
 
 -   Bio: "Development student looking to advance into development management and learn about project management, team leadership, and development methodologies."
 
--   Interests: Development, Management, Business, Communication, Leadership
+-   Interests: Development, Management, Business, Law, Health
 
--   Skills: Development, Communication, Leadership, Management, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -448,7 +448,7 @@ User 8: Michael Thompson
 
 -   Bio: "20+ years in development and project management across multiple sectors. Expert in development methodologies, team leadership, and business strategy. Passionate about mentoring developers and sharing best practices."
 
--   Interests: Development, Management, Business, Leadership, Communication
+-   Interests: Development, Management, Business, Law, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -479,9 +479,9 @@ User 9: Sofia Andersson
 
 -   Bio: "Content writer looking to transition into content strategy and business development. Seeking guidance on content planning, business strategy, and building a personal brand."
 
--   Interests: Content Writing, Business, Management, Communication, Creativity
+-   Interests: Content Writing, Business, Management, Development, Health
 
--   Skills: Content Writing, Communication, Creativity, Leadership, Management
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -505,7 +505,7 @@ User 9: Sofia Andersson
 
 -   Bio: "13+ years in content strategy and business development with expertise in content planning, business growth, and brand building. Passionate about mentoring content creators and helping them build successful careers."
 
--   Interests: Content Writing, Business, Management, Leadership, Development
+-   Interests: Content Writing, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 
@@ -536,9 +536,9 @@ User 10: Rajesh Kumar
 
 -   Bio: "Law professional looking to advance into business development and learn about management, strategic planning, and client relationship management in business."
 
--   Interests: Law, Business, Management, Communication, Leadership
+-   Interests: Law, Business, Management, Development, Health
 
--   Skills: Communication, Leadership, Management, Development, Creativity
+-   Skills: Leadership, Management, Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -562,7 +562,7 @@ User 10: Rajesh Kumar
 
 -   Bio: "17+ years in law and business development with expertise in business strategy, team leadership, and client relations. Passionate about mentoring legal professionals and sharing insights from building successful practices."
 
--   Interests: Law, Business, Management, Leadership, Development
+-   Interests: Law, Business, Management, Development, Health
 
 -   Skills: Leadership, Management, Development, Communication, Creativity
 

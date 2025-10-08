@@ -2,6 +2,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
+import { PROJECT_ID } from '@env';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -28,6 +29,11 @@ class NotificationService {
         return null;
       }
 
+      // Check if we're in Expo Go (which has limited notification support)
+      if (__DEV__) {
+        console.log('Running in Expo Go - notifications may have limited functionality');
+      }
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       
@@ -41,7 +47,22 @@ class NotificationService {
         return null;
       }
       
-      this.expoPushToken = await Notifications.getExpoPushTokenAsync();
+      // Try to get push token with projectId, fallback to without if it fails
+      try {
+        this.expoPushToken = await Notifications.getExpoPushTokenAsync({
+          projectId: PROJECT_ID
+        });
+      } catch (error) {
+        console.log('Failed to get token with projectId, trying without:', error.message);
+        try {
+          this.expoPushToken = await Notifications.getExpoPushTokenAsync();
+        } catch (fallbackError) {
+          console.log('Failed to get token without projectId as well:', fallbackError.message);
+          console.log('Skipping push token generation - notifications will work locally only');
+          this.isInitialized = true;
+          return null;
+        }
+      }
       console.log('Push token:', this.expoPushToken.data);
       
       if (Platform.OS === 'android') {

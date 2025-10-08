@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 80,
     paddingBottom: 100,
   },
   header: {

@@ -43,7 +43,7 @@ const Home = ({route}) => {
           />
           <View style={styles.info}>
             <Text style={[styles.mentorMatching, styles.viewDetailsTypo]}>
-              Welcome to Your Journey!
+              Welcome to your Journey!
             </Text>
             <Text style={styles.mentorMatchingAllowsContainer}>
               <Text style={styles.mentorMatchingAllows}>
@@ -99,12 +99,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   header1Icon: {
-    width: 330,
-    height: 270,
+    width: 280,
+    height: 220,
   },
   mentorMatching: {
-    fontSize: 32,
-    textAlign: 'left',
+    fontSize: 20,
+    textAlign: 'center',
     color: '#000',
   },
   mentorMatchingAllows: {

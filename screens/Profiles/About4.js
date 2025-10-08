@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, View, Text, ScrollView, TextInput, Alert } from "react-native";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 import { Image } from "expo-image";
 import { ProgressBar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
@@ -64,7 +65,7 @@ const About4 = ({ route }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+    <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
       <View style={styles.about44}>
         <Pressable
           style={styles.headerContainer}
@@ -112,7 +113,7 @@ const About4 = ({ route }) => {
             placeholder="Enter your bio here..."
             value={bio}
             onChangeText={(text) => setBio(text)}
-            style={styles.input}
+            style={styles.multilineInput}
             multiline={true}
             numberOfLines={4}
             textAlignVertical="top"
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: "100%",
-    height: 200,
+    height: 150,
     resizeMode: "contain",
   },
   progressContainer: {
@@ -182,6 +183,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     minHeight: 100,
+  },
+  multilineInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 30,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 8,
+    width: "100%",
+    marginBottom: 20,
+    fontSize: 16,
+    minHeight: 100,
+    fontFamily: 'Roboto',
+    fontWeight: '400',
+    backgroundColor: '#fff',
   },
   profilePictureSection: {
     alignItems: "center",

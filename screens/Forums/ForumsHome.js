@@ -59,7 +59,7 @@ export default function ForumsHome() {
 
   return (
     <>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 80, paddingBottom: 96 }} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Forums</Text>
 
         {visibleSpaces.map((space) => (

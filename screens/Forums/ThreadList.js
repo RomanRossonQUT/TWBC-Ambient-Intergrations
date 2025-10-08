@@ -32,13 +32,29 @@ export default function ThreadList() {
     if (userNames[userId]) return userNames[userId]; // Return cached name if available
 
     try {
+      // First try to find a profile that matches both userID and type
       const profileQuery = query(
+        collection(db, "Profiles"),
+        where("userID", "==", userId),
+        where("type", "==", type)
+      );
+      const profileSnapshot = await getDocs(profileQuery);
+      
+      if (!profileSnapshot.empty) {
+        const profileData = profileSnapshot.docs[0].data();
+        const userName = `${profileData.firstName} ${profileData.lastName}`;
+        setUserNames((prev) => ({ ...prev, [userId]: userName }));
+        return userName;
+      }
+      
+      // If no profile found with matching type, fall back to any profile with that userID
+      const fallbackQuery = query(
         collection(db, "Profiles"),
         where("userID", "==", userId)
       );
-      const profileSnapshot = await getDocs(profileQuery);
-      if (!profileSnapshot.empty) {
-        const profileData = profileSnapshot.docs[0].data();
+      const fallbackSnapshot = await getDocs(fallbackQuery);
+      if (!fallbackSnapshot.empty) {
+        const profileData = fallbackSnapshot.docs[0].data();
         const userName = `${profileData.firstName} ${profileData.lastName}`;
         setUserNames((prev) => ({ ...prev, [userId]: userName }));
         return userName;
@@ -83,6 +99,18 @@ export default function ThreadList() {
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Header with back button */}
+      <View style={styles.header}>
+        <Pressable 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>{categoryName}</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+      
       <FlatList
         data={threads}
         keyExtractor={(item) => item.id}
@@ -133,6 +161,36 @@ export default function ThreadList() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 10,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#ed469a',
+    fontFamily: 'Raleway-Regular',
+    fontWeight: '900',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 40, // Same width as back button to center the title
+  },
   thread: {
     backgroundColor: "#fff",
     borderRadius: 14,

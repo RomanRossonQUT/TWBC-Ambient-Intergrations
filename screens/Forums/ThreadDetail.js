@@ -18,6 +18,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Pressable,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
@@ -166,13 +167,25 @@ export default function ThreadDetail() {
 
   return (
     <View style={styles.page}>
+      {/* Header with back button */}
+      <View style={styles.header}>
+        <Pressable 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>{title || "Thread"}</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+      
       <FlatList
         ref={listRef}
         data={posts}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListEmptyComponent={listEmpty}
-        contentContainerStyle={{ padding: 12, paddingBottom: 120 }}
+        contentContainerStyle={{ padding: 12, paddingBottom: 260 }}
       />
 
       {/* Composer */}
@@ -216,7 +229,41 @@ export default function ThreadDetail() {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: BG },
+  page: { 
+    flex: 1, 
+    backgroundColor: BG,
+    paddingBottom: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 10,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#ed469a',
+    fontFamily: 'Raleway-Regular',
+    fontWeight: '900',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 40, // Same width as back button to center the title
+  },
 
   postCard: {
     backgroundColor: "#fff",
@@ -246,7 +293,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 68, // keep above navbar
+    bottom: 90, // keep above navbar
     paddingHorizontal: 12,
   },
   previewRow: {

@@ -9,12 +9,13 @@
 // ----------------------------------------------------------------------------
 
 import React, { useState } from "react";
-import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { TextInput as RNPTextInput, Button, HelperText, Snackbar } from "react-native-paper";
+import { Button, Snackbar } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebaseConfig";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 
 const PINK = "#ED469A";
 
@@ -104,12 +105,18 @@ const Login = () => {
   // Render
   return (
     <>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+      <View style={styles.container}>
+        <Pressable 
+          style={styles.backArrow}
+          onPress={() => navigation.navigate("AppEntry")}
+        >
+          <Text style={styles.backArrowText}>←</Text>
+        </Pressable>
         <View style={[styles.loginAccount, styles.loginAccountFlexBox]}>
           <Pressable style={styles.header1}>
             <Image
               style={styles.icon}
-              contentFit="cover"
+              contentFit="contain"
               source={require("../../assets/header-11.png")}
             />
           </Pressable>
@@ -124,59 +131,30 @@ const Login = () => {
           </View>
 
           <View style={[styles.loginSection, styles.loginSectionSpaceBlock]}>
-            <RNPTextInput
-              style={styles.form}
-              label="Email"
-              placeholder="Email@address.com"
-              mode="outlined"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="next"
-              placeholderTextColor="#9eaab6"
-              error={!!emailError}
-              theme={{
-                fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-                colors: {
-                  text: "#191919",
-                  primary: PINK,
-                  error: "#d32f2f",
-                },
-              }}
+            <AdaptiveTextInput
+              placeholder="Email"
               value={email}
               onChangeText={(t) => {
                 setEmail(t);
                 if (emailError) setEmailError("");
               }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="next"
+              error={!!emailError}
             />
-            <HelperText type="error" visible={!!emailError}>
-              {emailError}
-            </HelperText>
 
-            <RNPTextInput
-              style={styles.form}
-              label="Password"
-              placeholder="Enter Password"
-              mode="outlined"
-              placeholderTextColor="#9eaab6"
-              secureTextEntry
-              error={!!passwordError}
-              theme={{
-                fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-                colors: {
-                  text: "#191919",
-                  primary: PINK,
-                  error: "#d32f2f",
-                },
-              }}
+            <AdaptiveTextInput
+              placeholder="Password"
               value={password}
               onChangeText={(t) => {
                 setPassword(t);
                 if (passwordError) setPasswordError("");
               }}
+              secureTextEntry
+              returnKeyType="done"
+              error={!!passwordError}
             />
-            <HelperText type="error" visible={!!passwordError}>
-              {passwordError}
-            </HelperText>
           </View>
 
           <Pressable
@@ -198,7 +176,7 @@ const Login = () => {
             Don&apos;t have an account?
           </Button>
         </View>
-      </ScrollView>
+      </View>
 
       <Snackbar
         visible={snack.visible}
@@ -214,8 +192,8 @@ const Login = () => {
 
  
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 20,
@@ -233,11 +211,10 @@ const styles = StyleSheet.create({
   loginSectionSpaceBlock: { paddingVertical: 10, paddingHorizontal: 0, alignSelf: "stretch" },
   viewDetailsTypo: { fontFamily: "Raleway-Bold", fontWeight: "700" },
   icon: { height: "100%", width: "100%" },
-  header1: { width: 330, height: 270 },
+  header1: { width: 330, height: 200 },
   loginToAccount: { fontSize: 32, fontFamily: "Raleway-Bold", fontWeight: "700" },
-  joinAndConnect: { fontFamily: "Raleway-Regular", fontSize: 18 },
+  joinAndConnect: { fontFamily: "Raleway-Regular", fontSize: 16 },
   info: { alignSelf: "stretch" },
-  form: { alignSelf: "stretch" },
   loginSection: { gap: 6, overflow: "hidden" },
   viewDetails: { color: "#fff", textAlign: "center", fontSize: 18 },
   buttonPrimary: {
@@ -254,6 +231,18 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     gap: 20,
     width: "100%",
+  },
+  backArrow: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 1,
+    padding: 10,
+  },
+  backArrowText: {
+    fontSize: 24,
+    color: "#d0d0d0",
+    fontFamily: "Raleway-Regular",
   },
 });
 

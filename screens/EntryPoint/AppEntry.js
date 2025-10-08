@@ -5,7 +5,7 @@
 // - Buttons to navigate to Login or SignUp screens.
 // ----------------------------------------------------------------------------
 
-import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import 'react-native-gesture-handler';
@@ -15,7 +15,7 @@ const AppEntry = () => {
   const navigation = useNavigation();
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <View style={styles.container}>
       <View style={styles.startScreen}>
         <Image
           style={styles.header1Icon}
@@ -24,7 +24,7 @@ const AppEntry = () => {
         />
         <View style={styles.info}>
           <Text style={[styles.learnFromAmazing, styles.theAimOfFlexBox]}>
-            LEARN FROM AMAZING WOMEN IN BUSINESS
+            LEARN FROM AMAZING WOMEN IN <Text style={styles.businessHighlight}>BUSINESS</Text>
           </Text>
           <Text style={[styles.theAimOf, styles.theAimOfFlexBox]}>
             The aim of The Women’s Business School is to provide a space where
@@ -47,19 +47,19 @@ const AppEntry = () => {
           </Text>
         </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
  
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   theAimOfFlexBox: {
-    textAlign: "left",
+    textAlign: "center",
     alignSelf: "stretch",
   },
   buttonFlexBox: {
@@ -77,10 +77,14 @@ const styles = StyleSheet.create({
   },
   header1Icon: {
     width: "100%",
-    height: 270,
+    height: 220,
+  },
+  businessHighlight: {
+    color: "#ed469a",
+    fontWeight: "900",
   },
   learnFromAmazing: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: "Raleway-Bold",
     fontWeight: "700",
   },
@@ -88,6 +92,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     fontFamily: "Raleway-Regular",
+    textAlign: "center",
   },
   info: {
     overflow: "hidden",

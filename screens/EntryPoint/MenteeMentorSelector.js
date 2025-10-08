@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDocs, collection, query, where, getDoc, updateDoc} from "firebase/firestore"
 import { db, auth } from '../../firebaseConfig';
 
@@ -18,6 +18,15 @@ const MenteeMentorSelector = () => {
 
     //console.log(uid)
   })
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigation.navigate("AppEntry");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   const createProfile = async (type) => {
     // check if a profile of that type has been made yet
@@ -92,14 +101,14 @@ const MenteeMentorSelector = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+    <View style={styles.container}>
       <View style={styles.welcome}>
         <Pressable
           style={styles.header1}
         >
           <Image
             style={styles.icon}
-            contentFit="cover"
+            contentFit="contain"
             source={require("../../assets/header-1.png")}
           />
         </Pressable>
@@ -134,21 +143,29 @@ const MenteeMentorSelector = () => {
             <Text style={styles.menteeTypo}>Mentor</Text>
           </Text>
         </Pressable>
+        <Pressable
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>Log out</Text>
+        </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
+  container: {
+    flex: 1,
     paddingHorizontal: 30,
     paddingVertical: 30,
     alignItems: "center",
-    paddingTop: "30%",
+    paddingTop: "25%",
     paddingBottom: "20%",
+    justifyContent: "center",
   },
   welcome1FlexBox: {
-    textAlign: "left",
+    textAlign: "center",
     alignSelf: "stretch",
   },
   menteeTypo: {
@@ -167,13 +184,14 @@ const styles = StyleSheet.create({
   icon: {
     height: "100%",
     width: "100%",
+    resizeMode: "contain",
   },
   header1: {
     width: "100%",
-    height: 270,
+    height: 200,
   },
   welcome1: {
-    fontSize: 32,
+    fontSize: 24,
     color: "#000",
     fontFamily: "Raleway-Bold",
     fontWeight: "700",
@@ -183,10 +201,12 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     fontFamily: "Raleway-Regular",
     color: "#000",
+    textAlign: "center",
   },
   letsGetStarted: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#fa0066",
+    textAlign: "center",
   },
   info: {
     overflow: "hidden",
@@ -211,6 +231,15 @@ const styles = StyleSheet.create({
     gap: 30,
     justifyContent: "center",
     width: "100%",
+  },
+  logoutButton: {
+    alignItems: "center",
+    marginTop: 5,
+  },
+  logoutText: {
+    fontSize: 14,
+    color: "#888",
+    fontFamily: "Raleway-Regular",
   },
 });
 

@@ -308,7 +308,7 @@ const InteractiveMatching = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.matchingScreen, styles.image43ParentFlexBox]}>
           <View style={[styles.header, styles.headerFlexBox]}>
             <Pressable style={styles.crossButton} onPress={declineMatch}>

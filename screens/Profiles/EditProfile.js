@@ -9,6 +9,7 @@
 // -----------------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert } from "react-native";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { db } from "../../firebaseConfig";
@@ -148,7 +149,7 @@ const EditProfile = ({ route }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Edit Profile</Text>
 
       {/* Profile Picture Section */}
@@ -169,42 +170,39 @@ const EditProfile = ({ route }) => {
         </Pressable>
       </View>
 
-      <TextInput
-        style={styles.input}
+      <AdaptiveTextInput
         placeholder="First Name"
         value={formData.firstName}
         onChangeText={(text) => handleChange("firstName", text)}
       />
-      <TextInput
-        style={styles.input}
+      <AdaptiveTextInput
         placeholder="Last Name"
         value={formData.lastName}
         onChangeText={(text) => handleChange("lastName", text)}
       />
-      <TextInput
-        style={styles.input}
+      <AdaptiveTextInput
         placeholder="Pronouns"
         value={formData.pronouns}
         onChangeText={(text) => handleChange("pronouns", text)}
       />
-      <TextInput
-        style={styles.input}
+      <AdaptiveTextInput
         placeholder="Current Role"
         value={formData.currentRole}
         onChangeText={(text) => handleChange("currentRole", text)}
       />
-      <TextInput
-        style={styles.input}
+      <AdaptiveTextInput
         placeholder="Current Industry"
         value={formData.currentIndustry}
         onChangeText={(text) => handleChange("currentIndustry", text)}
       />
+      <Text style={styles.subTitle}>Bio</Text>
       <TextInput
-        style={[styles.input, { height: 100 }]}
+        style={[styles.input, styles.multilineInput]}
         multiline
-        placeholder="Bio"
+        placeholder="Tell us about yourself..."
         value={formData.bio}
         onChangeText={(text) => handleChange("bio", text)}
+        textAlignVertical="top"
       />
 
       {/* Interests Section */}
@@ -255,9 +253,14 @@ const EditProfile = ({ route }) => {
         ))}
       </View>
 
-      <Pressable style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save Changes</Text>
-      </Pressable>
+      <View style={styles.buttonContainer}>
+        <Pressable style={styles.cancelButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Save Changes</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 };
@@ -266,6 +269,8 @@ const EditProfile = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    paddingTop: 60,
+    paddingBottom: 40,
     alignItems: "stretch",
     backgroundColor: "#fff",
   },
@@ -282,6 +287,15 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: "#fff",
+  },
+  multilineInput: {
+    height: 100,
+    borderRadius: 30,
+    paddingTop: 20,
+    paddingBottom: 8,
+    fontSize: 16,
+    fontFamily: 'Roboto',
+    fontWeight: '400',
   },
   subTitle: {
     fontSize: 18,
@@ -341,10 +355,30 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 10,
+    flex: 1,
+    marginLeft: 10,
   },
   saveButtonText: {
     color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 10,
+    gap: 10,
+  },
+  cancelButton: {
+    backgroundColor: "#f0f0f0",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  cancelButtonText: {
+    color: "#666",
     fontWeight: "bold",
     fontSize: 16,
   },

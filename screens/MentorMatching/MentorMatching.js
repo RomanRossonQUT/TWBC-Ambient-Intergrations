@@ -20,6 +20,7 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  Animated,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Image as ExpoImage } from "expo-image";
@@ -56,6 +57,7 @@ const MentorMatching = () => {
   const [processing, setProcessing] = useState(false);
   const [noMoreMatches, setNoMoreMatches] = useState(false);
   const [shownMatchIds, setShownMatchIds] = useState([]); // Track shown matches
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   // Current match data
   const [currentMatch, setCurrentMatch] = useState(null);
@@ -83,6 +85,8 @@ const MentorMatching = () => {
   const loadSuggestedMatches = async () => {
     try {
       setLoading(true);
+      // Reset animation
+      fadeAnim.setValue(0);
       console.log(`[DEBUG] Loading matches for ${userType} - UID: ${uid}, PID: ${pid}, Type: ${type}`);
       console.log(`[DEBUG] Parameter types - UID: ${typeof uid}, PID: ${typeof pid}, Type: ${typeof type}`);
       
@@ -106,6 +110,12 @@ const MentorMatching = () => {
       Alert.alert("Error", `Failed to load ${targetRoleText} suggestions. Please try again.`);
     } finally {
       setLoading(false);
+      // Start fade in animation
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
   };
 
@@ -283,7 +293,8 @@ const MentorMatching = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <Animated.View style={[styles.matchingContent, { opacity: fadeAnim }]}>
+        <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
         {/* Header with role indicator */}
         <View style={styles.header}>
           <Text style={styles.roleIndicator}>
@@ -383,6 +394,7 @@ const MentorMatching = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </Animated.View>
       <Navbar />
     </View>
   );
@@ -392,6 +404,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f6f7fb",
+  },
+  matchingContent: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,

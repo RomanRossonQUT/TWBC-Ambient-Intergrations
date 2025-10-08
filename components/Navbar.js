@@ -1,10 +1,12 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Navbar = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const insets = useSafeAreaInsets();
 
   // Safe params so we don't crash if undefined
   const { uid, pid, type } = route.params ?? {};
@@ -13,7 +15,7 @@ const Navbar = () => {
   if (type === "Mentor") {
     // Mentor: Home, MentorScreen3, MessageInbox, ForumsHome, Profile
     return (
-      <View style={styles.navbar}>
+      <View style={[styles.navbar, { paddingBottom: insets.bottom - 10 }]}>
         <Pressable
           style={[styles.navButton, isActive('Home') && styles.activeButton]}
           onPress={() => navigation.navigate('Home', { uid, pid, type })}
@@ -57,7 +59,7 @@ const Navbar = () => {
 
   // Mentee/other: Home, Matching, MessageInbox, ForumsHome, Profile
   return (
-    <View style={styles.navbar}>
+    <View style={[styles.navbar, { paddingBottom: insets.bottom - 10 }]}>
       <Pressable
         style={[styles.navButton, isActive('Home') && styles.activeButton]}
         onPress={() => navigation.navigate('Home', { uid, pid, type })}
@@ -102,11 +104,12 @@ const styles = StyleSheet.create({
   navbar: {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
-    height: 60,
+    minHeight: 35,
     backgroundColor: '#ed469a',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
+    paddingTop: 10,
   },
   navButton: { padding: 10 },
   activeButton: { backgroundColor: '#ffe4e1', borderRadius: 10 },

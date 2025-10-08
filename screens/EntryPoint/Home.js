@@ -11,7 +11,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Pressable,
   TouchableOpacity,
 } from 'react-native';
@@ -23,8 +22,6 @@ const Home = ({route}) => {
   const navigation = useNavigation();
   const {uid, pid, type} = route.params;
 
-  console.log(uid, pid, type);
-
   // Navigate to the matching screen - both mentors and mentees use the same system
   const navToMatching = async () => {
     navigation.navigate('MentorMatching', {uid, pid, type})
@@ -34,7 +31,7 @@ const Home = ({route}) => {
   // Main render
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.contentContainer}>
         <View style={[styles.optScreen, styles.optScreenFlexBox]}>
           <Image
             style={styles.header1Icon}
@@ -73,7 +70,7 @@ const Home = ({route}) => {
             </TouchableOpacity>
           </Pressable>
         </View>
-      </ScrollView>
+      </View>
       <Navbar />
     </View>
   );
@@ -84,8 +81,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  scrollViewContent: {
-    flexGrow: 1,
+  contentContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -114,11 +111,12 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   letsGetStarted: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#fa0066',
+    textAlign: 'center',
   },
   mentorMatchingAllowsContainer: {
-    textAlign: 'left',
+    textAlign: 'center',
     alignSelf: 'stretch',
   },
   info: {

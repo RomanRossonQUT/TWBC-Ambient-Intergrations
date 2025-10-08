@@ -8,9 +8,10 @@
 // -----------------------------------------------------------------------------
 
 import React, { useState, useEffect, useCallback } from "react";
-import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { TextInput as RNPTextInput, Button, HelperText, Snackbar, ActivityIndicator } from "react-native-paper";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -238,7 +239,13 @@ const SignUp = () => {
   // Render
   return (
     <>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+      <View style={styles.container}>
+        <Pressable 
+          style={styles.backArrow}
+          onPress={() => navigation.navigate("AppEntry")}
+        >
+          <Text style={styles.backArrowText}>←</Text>
+        </Pressable>
         <View style={[styles.createAccount, styles.center]}>
           <Pressable style={styles.header}>
             <Image style={styles.icon} contentFit="cover" source={require("../../assets/header-11.png")} />
@@ -251,74 +258,57 @@ const SignUp = () => {
 
           <View style={styles.formSection}>
             <View style={styles.emailInputContainer}>
-              <RNPTextInput
-                style={styles.form}
-                label="Email"
-                placeholder="Email@address.com"
-                mode="outlined"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                returnKeyType="next"
-                error={!!emailError}
-                theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+              <AdaptiveTextInput
+                placeholder="Email"
                 value={email}
                 onChangeText={(t) => {
                   setEmail(t);
                   if (emailError) setEmailError("");
                 }}
-                right={
-                  emailStatus === 'checking' ? (
-                    <RNPTextInput.Icon 
-                      icon={() => <ActivityIndicator size={20} color={PINK} />} 
-                      key="checking"
-                    />
-                  ) : emailStatus === 'available' ? (
-                    <RNPTextInput.Icon 
-                      icon={() => <Icon name="checkmark-circle" size={20} color="#4CAF50" />} 
-                      key="available"
-                    />
-                  ) : emailStatus === 'taken' ? (
-                    <RNPTextInput.Icon 
-                      icon={() => <Icon name="close-circle" size={20} color="#f44336" />} 
-                      key="taken"
-                    />
-                  ) : null
-                }
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="next"
+                error={!!emailError}
               />
+              {emailStatus === 'checking' && (
+                <View style={styles.emailStatusIcon}>
+                  <ActivityIndicator size={20} color={PINK} />
+                </View>
+              )}
+              {emailStatus === 'available' && (
+                <View style={styles.emailStatusIcon}>
+                  <Icon name="checkmark-circle" size={20} color="#4CAF50" />
+                </View>
+              )}
+              {emailStatus === 'taken' && (
+                <View style={styles.emailStatusIcon}>
+                  <Icon name="close-circle" size={20} color="#f44336" />
+                </View>
+              )}
             </View>
             <HelperText type="error" visible={!!emailError}>{emailError}</HelperText>
 
-            <RNPTextInput
-              style={styles.form}
-              label="Password"
-              placeholder="Enter Password"
-              mode="outlined"
-              secureTextEntry
-              error={!!passwordError}
-              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+            <AdaptiveTextInput
+              placeholder="Password"
               value={password1}
               onChangeText={(t) => {
                 setPassword1(t);
                 if (passwordError) setPasswordError("");
               }}
-            />
-            <HelperText type="error" visible={!!passwordError}>{passwordError}</HelperText>
-
-            <RNPTextInput
-              style={styles.form}
-              label="Confirm Password"
-              placeholder="Re-enter Password"
-              mode="outlined"
               secureTextEntry
-              error={!!confirmError}
-              theme={{ colors: { primary: PINK, error: "#d32f2f" } }}
+              error={!!passwordError}
+            />
+
+            <AdaptiveTextInput
+              placeholder="Confirm Password"
               value={password2}
               onChangeText={(t) => {
                 setPassword2(t);
                 if (confirmError) setConfirmError("");
               }}
+              secureTextEntry
+              error={!!confirmError}
             />
-            <HelperText type="error" visible={!!confirmError}>{confirmError}</HelperText>
           </View>
 
           <Pressable
@@ -338,7 +328,7 @@ const SignUp = () => {
             Already have an account?
           </Button>
         </View>
-      </ScrollView>
+      </View>
 
       <Snackbar
         visible={snack.visible}
@@ -354,8 +344,8 @@ const SignUp = () => {
 
  
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
@@ -390,7 +380,14 @@ const styles = StyleSheet.create({
   },
   emailInputContainer: {
     width: "100%",
-    marginBottom: 12,
+    marginBottom: 0,
+    position: 'relative',
+  },
+  emailStatusIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 25,
+    zIndex: 1,
   },
   form: {
     width: "100%",
@@ -426,6 +423,18 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#ea9bbf",
     textAlign: "center",
+  },
+  backArrow: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 1,
+    padding: 10,
+  },
+  backArrowText: {
+    fontSize: 24,
+    color: "#d0d0d0",
+    fontFamily: "Raleway-Regular",
   },
 });
 

@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { setDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from '../../firebaseConfig';
 import { TextInput as RNPTextInput } from 'react-native-paper';
+import AdaptiveTextInput from '../../components/AdaptiveTextInput';
 
 const About1 = ({ route }) => {
   const navigation = useNavigation();
@@ -59,114 +60,44 @@ const About1 = ({ route }) => {
         </View>
 
         <View style={styles.infocontainer}>
-          <RNPTextInput
-            style={styles.form}
-            label="First Name"
-            placeholder="e.g Mary"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="First Name"
             value={firstName}
             onChangeText={setFirstName}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Last Name"
-            placeholder="e.g Smith"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Last Name"
             value={lastName}
             onChangeText={setLastName}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Current Role"
-            placeholder="e.g Software Engineer"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Current Role"
             value={currentRole}
             onChangeText={setCurrentRole}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Current Industry"
-            placeholder="e.g Technology"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Current Industry"
             value={currentIndustry}
             onChangeText={setCurrentIndustry}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Preferred Language"
-            placeholder="e.g English"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Preferred Language"
             value={preferredLanguage}
             onChangeText={setPreferredLanguage}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Country"
-            placeholder="e.g United States"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Country"
             value={country}
             onChangeText={setCountry}
           />
 
-          <RNPTextInput
-            style={styles.form}
-            label="Pronouns"
-            placeholder="e.g She/Her, He/Him, They/Them"
-            mode="outlined"
-            placeholderTextColor="#9eaab6"
-            outlineColor="#9eaab6"
-            activeOutlineColor="#ed469a"
-            theme={{
-              fonts: { regular: { fontFamily: "Roboto", fontWeight: "Medium" } },
-              colors: { text: "#191919" },
-            }}
+          <AdaptiveTextInput
+            placeholder="Pronouns"
             value={pronouns}
             onChangeText={setPronouns}
           />

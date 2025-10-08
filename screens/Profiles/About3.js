@@ -48,7 +48,7 @@ const About3 = ({ route }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+    <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
       <View style={styles.about34}>
         
         {/* Header image */}

@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // UI Kitten (Eva), Icon Pack, Expo Fonts
 import { IconRegistry, ApplicationProvider } from "@ui-kitten/components";
@@ -107,7 +108,7 @@ const App = () => {
   if (!fontsLoaded && !error) return null;
 
   return (
-    <>
+    <SafeAreaProvider>
       {/* Register our MaterialCommunityIcons adapter for UI Kitten */}
       <IconRegistry icons={[MaterialIconsPack]} />
 
@@ -148,7 +149,7 @@ const App = () => {
               <Stack.Screen
                 name="MessageInbox"
                 component={MessageInbox}
-                options={{ headerShown: true }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="Conversation"
@@ -160,17 +161,17 @@ const App = () => {
               <Stack.Screen
                 name="ForumsHome"
                 component={ForumsHome}
-                options={{ headerShown: true, title: "Forums" }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="ThreadList"
                 component={ThreadList}
-                options={{ headerShown: true, title: "Threads" }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="ThreadDetail"
                 component={ThreadDetail}
-                options={{ headerShown: true, title: "Thread" }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="NewThread"
@@ -181,7 +182,7 @@ const App = () => {
           ) : null}
         </NavigationContainer>
       </ApplicationProvider>
-    </>
+    </SafeAreaProvider>
   );
 };
 

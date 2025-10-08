@@ -16,6 +16,7 @@ import {
   TextInput,
   Pressable,
 } from "react-native";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 import {
   collection,
   getDocs,
@@ -114,7 +115,7 @@ const MessageInbox = () => {
                 unreadCount = unreadSnapshot.size;
               }
             } catch (error) {
-              console.log("No messages found for chat:", chatId);
+              // No messages found for this chat
             }
 
             return {
@@ -257,12 +258,12 @@ const MessageInbox = () => {
       />
 
       {/* Floating Compose Button */}
-      <Pressable
+      {/* <Pressable
         style={styles.fab}
         onPress={() => navigation.navigate("DiscoverConnections", { uid })}
       >
         <Icon name="message-plus" size={26} color="#fff" />
-      </Pressable>
+      </Pressable> */}
 
       <Navbar />
     </View>
@@ -272,7 +273,7 @@ const MessageInbox = () => {
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: PAGE_BG },
   header: {
-    paddingTop: 8,
+    paddingTop: 70,
     paddingHorizontal: 16,
     paddingBottom: 6,
     flexDirection: "row",

@@ -9,7 +9,7 @@ const MENTORPROFILE = () => {
   const navigation = useNavigation();
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       <Pressable
         style={styles.header21}
         onPress={() => navigation.navigate("InteractiveMatching")}

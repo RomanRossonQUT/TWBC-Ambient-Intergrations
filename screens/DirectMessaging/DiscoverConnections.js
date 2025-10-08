@@ -15,6 +15,7 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
+import AdaptiveTextInput from "../../components/AdaptiveTextInput";
 import {
   collection,
   query,
@@ -258,7 +259,7 @@ const DiscoverConnections = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  page: { flex: 1, padding: 20, backgroundColor: BG },
+  page: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: BG },
   title: {
     fontSize: 22,
     fontWeight: "700",
@@ -320,7 +321,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 50,
     left: 20,
     right: 20,
     backgroundColor: PINK,

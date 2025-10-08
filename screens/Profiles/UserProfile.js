@@ -7,7 +7,7 @@
 // - Switch button navigates between the user's Mentor/Mentee profile if both exist.
 // -----------------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
-import { Text, View, ScrollView, Pressable, StyleSheet } from "react-native";
+import { Text, View, ScrollView, Pressable, StyleSheet, Animated } from "react-native";
 import { Image } from "expo-image";
 import { getDoc, doc, getDocs, collection } from "firebase/firestore";
 import { db, auth } from "../../firebaseConfig";
@@ -36,6 +36,8 @@ const UserProfile = ({ route }) => {
   const [userData, setUserData] = useState({});
   const [interestTags, setInterestTags] = useState({});
   const [skillTags, setSkillTags] = useState({});
+  const [loading, setLoading] = useState(true);
+  const fadeAnim = useState(new Animated.Value(0))[0];
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const userID = auth.currentUser?.uid;
@@ -45,6 +47,7 @@ const UserProfile = ({ route }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         // Fetch all tags once
         const [interestMap, skillMap] = await Promise.all([
           fetchAllTags("InterestTags"),
@@ -63,10 +66,20 @@ const UserProfile = ({ route }) => {
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+        // Start fade in animation
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
       }
     };
 
     if (isFocused) {
+      // Reset animation
+      fadeAnim.setValue(0);
       fetchData();
     }
   }, [userID, pid, isFocused]);
@@ -103,9 +116,20 @@ const UserProfile = ({ route }) => {
   };
 
   // Render
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <Animated.View style={[styles.profileContent, { opacity: fadeAnim }]}>
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Profile Picture */}
         <Image
           style={styles.profileImage}
@@ -113,7 +137,7 @@ const UserProfile = ({ route }) => {
           source={
             userData.profileImageUrl 
               ? { uri: userData.profileImageUrl }
-              : require("../../assets/image-431.png")
+              : require("../../assets/default_profile.jpg")
           }
         />
 
@@ -121,7 +145,7 @@ const UserProfile = ({ route }) => {
         <Text style={styles.nameText}>
           {`${userData.firstName || "First"} ${userData.lastName || "Name"}`}
         </Text>
-        <Text style={styles.subText}>
+        <Text style={styles.pronounsText}>
           {userData.pronouns || ""}
         </Text>
         <Text style={styles.subText}>
@@ -185,6 +209,7 @@ const UserProfile = ({ route }) => {
           )}
         </View>
       </ScrollView>
+      </Animated.View>
       <Navbar style={styles.navbar} />
     </View>
   );
@@ -193,6 +218,17 @@ const UserProfile = ({ route }) => {
  
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  profileContent: { flex: 1 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#666",
+    fontFamily: "Raleway-Regular",
+  },
   scrollContainer: { 
     paddingHorizontal: 20, 
     paddingTop: 60, 
@@ -203,6 +239,7 @@ const styles = StyleSheet.create({
   },
   profileImage: { width: 120, height: 120, borderRadius: 60, marginVertical: 15 },
   nameText: { fontSize: 24, fontWeight: "bold", color: "#000" },
+  pronounsText: { fontSize: 14, color: "#555", marginTop: 2, fontStyle: "italic" },
   subText: { fontSize: 16, color: "#555", marginTop: 2 },
   locationText: { fontSize: 14, color: "#999", marginBottom: 15 },
   buttonRow: { flexDirection: "row", justifyContent: "center", marginVertical: 15 },
@@ -210,7 +247,7 @@ const styles = StyleSheet.create({
   switchButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#6C63FF", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   signOutButton: { flexDirection: "row", alignItems: "center", backgroundColor: "#FF5A5F", padding: 10, borderRadius: 6, marginHorizontal: 5 },
   buttonText: { color: "#fff", marginLeft: 5, fontWeight: "bold" },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 25, marginBottom: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: "bold", color: "#000", marginTop: 15, marginBottom: 8 },
   aboutText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 15, lineHeight: 22 },
   chipsContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginBottom: 10 },
   chip: {

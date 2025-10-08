@@ -18,6 +18,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -49,11 +50,6 @@ export default function Conversation({ route }) {
   const chatId = [currentUserId, otherUserId].sort().join("_");
   const navigation = useNavigation();
   const listRef = useRef(null);
-
-  // Set the screen title to the other user's name
-  useEffect(() => {
-    navigation.setOptions({ title: otherUserName });
-  }, [navigation, otherUserName]);
 
   // Live subscription to messages (kept with empty deps to preserve behavior)
   useEffect(() => {
@@ -301,6 +297,18 @@ export default function Conversation({ route }) {
 
   return (
     <View style={styles.container}>
+      {/* Custom Header */}
+      <View style={styles.header}>
+        <Pressable 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>{otherUserName}</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
       <FlatList
         ref={listRef}
         data={data}
@@ -356,7 +364,36 @@ export default function Conversation({ route }) {
 /* ---------- styles ---------- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  listContent: { padding: 12, paddingBottom: 130 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  backButton: {
+    padding: 10,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#ed469a',
+    fontFamily: 'Raleway-Regular',
+    fontWeight: '900',
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#000',
+  },
+  headerSpacer: {
+    width: 44, // Same width as back button to center title
+  },
+  listContent: { padding: 12, paddingBottom: 150 },
 
   timeMarkerWrap: {
     alignSelf: "center",
@@ -396,6 +433,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#eee",
     padding: 8,
+    paddingBottom: 20,
     backgroundColor: "#fff",
   },
   previewWrap: { alignSelf: "flex-start", marginLeft: 8, marginBottom: 6, position: "relative" },

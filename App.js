@@ -154,7 +154,7 @@ const App = () => {
               <Stack.Screen
                 name="Conversation"
                 component={Conversation}
-                options={{ headerShown: true }}
+                options={{ headerShown: false }}
               />
 
               {/* Forums */}

@@ -33,7 +33,7 @@ const BORDER = "#e8e8ef";
 const BG = "#f6f7fb";
 
 const DiscoverConnections = ({ route, navigation }) => {
-  const { uid } = route.params; // Current logged-in user's UID
+  const { uid, type } = route.params; // Current logged-in user's UID and profile type
 
   const [search, setSearch] = useState("");
   const [profiles, setProfiles] = useState([]);
@@ -61,12 +61,19 @@ const DiscoverConnections = ({ route, navigation }) => {
 
     const requests = await Promise.all(
       snap.docs.map(async (docSnap) => {
-        const { from } = docSnap.data();
+        const { from, fromProfileType } = docSnap.data();
+
+        // Only show requests from the opposite profile type
+        const targetProfileType = type === "Mentee" ? "Mentor" : "Mentee";
+        if (fromProfileType !== targetProfileType) {
+          return null; // Skip if sender's profile type doesn't match
+        }
 
         // Fetch sender's profile based on correct field "userID"
         const profileQ = query(
           collection(db, "Profiles"),
-          where("userID", "==", from)
+          where("userID", "==", from),
+          where("profileType", "==", fromProfileType)
         );
         const profileSnap = await getDocs(profileQ);
 
@@ -101,9 +108,9 @@ const DiscoverConnections = ({ route, navigation }) => {
 
   // Accept a request -> create Connection + remove request
   const handleAccept = async (senderUid, docId) => {
-    // Fetch profiles for display names
+    // Fetch profiles for display names - get the specific profile types
     const myProfileSnap = await getDocs(
-      query(collection(db, "Profiles"), where("userID", "==", uid))
+      query(collection(db, "Profiles"), where("userID", "==", uid), where("profileType", "==", type))
     );
     const senderProfileSnap = await getDocs(
       query(collection(db, "Profiles"), where("userID", "==", senderUid))
@@ -112,9 +119,13 @@ const DiscoverConnections = ({ route, navigation }) => {
     const myProfile = myProfileSnap.docs[0]?.data();
     const senderProfile = senderProfileSnap.docs[0]?.data();
 
-    // Create connection
+    // Create connection with profile type information
     await addDoc(collection(db, "Connections"), {
       userIds: [uid, senderUid],
+      profileTypes: {
+        [uid]: type,
+        [senderUid]: senderProfile.profileType,
+      },
       userNames: {
         [uid]: `${myProfile.firstName} ${myProfile.lastName}`,
         [senderUid]: `${senderProfile.firstName} ${senderProfile.lastName}`,
@@ -142,6 +153,7 @@ const DiscoverConnections = ({ route, navigation }) => {
     await addDoc(collection(db, "ConnectionRequests"), {
       from: uid,
       to: targetUid,
+      fromProfileType: type, // Store the sender's profile type
       createdAt: new Date(),
       status: "pending",
     });
@@ -151,7 +163,13 @@ const DiscoverConnections = ({ route, navigation }) => {
 
   // Search users by first + last name (excludes self + existing connections)
   const handleSearch = async () => {
-    const q = query(collection(db, "Profiles"));
+    // Determine target profile type based on current user's type
+    const targetProfileType = type === "Mentee" ? "Mentor" : "Mentee";
+    
+    const q = query(
+      collection(db, "Profiles"),
+      where("profileType", "==", targetProfileType)
+    );
     const snap = await getDocs(q);
 
     const results = snap.docs
@@ -301,11 +319,11 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, color: "#666" },
   actions: { flexDirection: "row", gap: 8, marginTop: 6 },
   button: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
   },
-  buttonText: { color: "#fff", fontWeight: "600" },
+  buttonText: { color: "#fff", fontWeight: "600", fontSize: 12 },
   accept: { backgroundColor: "#10b981" },
   decline: { backgroundColor: "#ef4444" },
   send: { backgroundColor: PINK },

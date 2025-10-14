@@ -23,27 +23,45 @@ const Skills = ({ interests, title = 'Skills/Interests', propHeight }) => {
 };
 
 const styles = StyleSheet.create({
-  interestsTypo: { textAlign: "left", fontWeight: "700" },
+  interestsTypo: { 
+    textAlign: "left", 
+    fontWeight: "700",
+    fontSize: 18,
+    color: "#333",
+    marginBottom: 12,
+  },
   frameParent: {
     height: 86,
     flexWrap: "wrap",
     alignContent: "flex-start",
-    gap: 5,
+    justifyContent: "flex-start",
+    gap: 6,
     flexDirection: "row",
+    paddingHorizontal: 0,
   },
   interestsParent: {
     borderStyle: "dashed",
     borderColor: "#ececec",
     borderTopWidth: 2,
     paddingTop: 20,
-    gap: 10,
-  },
-  buttonHighlight: { fontSize: 16, fontWeight: "700", color: "#fff" },
-  buttonHighlightWrapper: {
-    borderRadius: 5,
-    backgroundColor: "#ea9bbf",
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    marginBottom: 16,
+  },
+  buttonHighlight: { 
+    fontSize: 13, 
+    fontWeight: "600", 
+    color: "#fff",
+    textAlign: "center",
+  },
+  buttonHighlightWrapper: {
+    borderRadius: 20,
+    backgroundColor: "#ea9bbf",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
 });
 

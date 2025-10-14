@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, setDoc, getDocs, collection, query, where, getDoc, updateDoc} from "firebase/firestore"
+import { doc, setDoc, getDocs, collection, query, where, getDoc, updateDoc, runTransaction} from "firebase/firestore"
 import { db, auth } from '../../firebaseConfig';
 
 
@@ -56,47 +56,53 @@ const MenteeMentorSelector = () => {
       }
     }
 
-    const idCountSnap = await getDoc(doc(db, "Profiles", "profileCount"));
-
-    if (idCountSnap.exists()) {
-      // incremental ID
-      const newID = idCountSnap.data()["count"] + 1;
-      // save ID count
-      await setDoc(doc(db, "Profiles", "profileCount"), { count: newID });
-      await setDoc(doc(db, "Profiles", newID.toString()), {
-        /* aboutMe: null,
-        currentIndustry: null,
-        currentRole: null,
-        firstName: null,
-        lastName: null,
-        languages: null,
-        location: null,
-        pronouns: null, */
-        userID: uid,
-        profileType: type,
-        profileID: newID
-      })
-
-      // attach the profile to their user
-      if (type == "Mentor") {
-        await updateDoc(doc(db, "Users", uid), {
-          mentorID: newID
+    try {
+      // Use a transaction to atomically increment the profile count and create the profile
+      const newID = await runTransaction(db, async (transaction) => {
+        const profileCountRef = doc(db, "Profiles", "profileCount");
+        const profileCountDoc = await transaction.get(profileCountRef);
+        
+        let newID;
+        if (profileCountDoc.exists()) {
+          // Increment the existing count
+          newID = profileCountDoc.data()["count"] + 1;
+          transaction.update(profileCountRef, { count: newID });
+        } else {
+          // Initialize profileCount if it doesn't exist
+          newID = 1;
+          transaction.set(profileCountRef, { count: newID });
+        }
+        
+        // Create the new profile document
+        const profileRef = doc(db, "Profiles", newID.toString());
+        transaction.set(profileRef, {
+          userID: uid,
+          profileType: type,
+          profileID: newID
         });
-      } else if (type == "Mentee") {
-        await updateDoc(doc(db, "Users", uid), {
-          menteeID: newID
-        });
-      } else {
-        console.error("error with type");
-      }
+        
+        // Update the user document with the new profile ID
+        const userRef = doc(db, "Users", uid);
+        if (type === "Mentor") {
+          transaction.update(userRef, { mentorID: newID });
+        } else if (type === "Mentee") {
+          transaction.update(userRef, { menteeID: newID });
+        } else {
+          throw new Error("Invalid profile type");
+        }
+        
+        return newID;
+      });
 
-      // navigate to next page
-      const pid = newID;
-      navigation.navigate("About1", {uid, pid, type});
-
-    } else {
-      // something has gone wrong with the database
-      console.error("No profileCount");
+      console.log(`Successfully created ${type} profile with ID: ${newID}`);
+      
+      // Navigate to next page
+      navigation.navigate("About1", {uid, pid: newID, type});
+      
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      // You might want to show an error message to the user here
+      // For now, we'll just log the error
     }
   }
 

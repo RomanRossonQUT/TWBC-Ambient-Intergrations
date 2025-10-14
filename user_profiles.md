@@ -21,11 +21,11 @@ User 1: Sarah Chen
 
 -   Country: United States
 
--   Bio: "Recent graduate passionate about content creation and business strategy. Looking to learn from experienced professionals in content writing and business development to build my career in the industry."
+-   Bio: "Recent graduate passionate about content creation and business strategy."
 
--   Interests: Business, Content Writing, Management, Development, Health
+-   Interests: Business, Content Writing, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Communication, Creativity, Leadership
 
 ### Mentor Profile:
 
@@ -47,11 +47,11 @@ User 1: Sarah Chen
 
 -   Country: United States
 
--   Bio: "10+ years in business development with expertise in content strategy, team leadership, and business growth. Passionate about mentoring the next generation of business professionals and sharing insights from scaling businesses."
+-   Bio: "10+ years in business development with expertise in content strategy, team leadership, and business growth."
 
--   Interests: Business, Management, Development, Content Writing, Health
+-   Interests: Business, Management, Content Writing
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Communication, Creativity
 
 * * * * *
 
@@ -78,11 +78,11 @@ User 2: Marcus Johnson
 
 -   Country: Canada
 
--   Bio: "Self-taught developer transitioning from finance to tech. Eager to learn best practices, development methodologies, and career advancement strategies from experienced developers."
+-   Bio: "Self-taught developer transitioning from finance to tech."
 
--   Interests: Development, Business, Management, Law, Health
+-   Interests: Development, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Management, Development, Communication
 
 ### Mentor Profile:
 
@@ -104,11 +104,11 @@ User 2: Marcus Johnson
 
 -   Country: Canada
 
--   Bio: "15+ years in software development with expertise in development methodologies, team leadership, and mentoring. Former finance professional who successfully transitioned to tech and loves helping others make similar career changes."
+-   Bio: "15+ years in software development with expertise in development methodologies, team leadership, and mentoring."
 
--   Interests: Development, Management, Business, Law, Health
+-   Interests: Development, Management, Business
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development, Communication
 
 * * * * *
 
@@ -135,11 +135,11 @@ User 3: Priya Patel
 
 -   Country: United Kingdom
 
--   Bio: "Health professional looking to transition into business strategy and operations. Seeking guidance on bridging health knowledge with business acumen."
+-   Bio: "Health professional looking to transition into business strategy and operations."
 
--   Interests: Health, Business, Management, Law, Development
+-   Interests: Health, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -161,11 +161,11 @@ User 3: Priya Patel
 
 -   Country: United Kingdom
 
--   Bio: "20+ years in health operations and business strategy. Expert in bridging health and business worlds, with extensive experience in health innovation and process optimization."
+-   Bio: "20+ years in health operations and business strategy."
 
--   Interests: Health, Business, Management, Law, Development
+-   Interests: Health, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development
 
 * * * * *
 
@@ -192,11 +192,11 @@ User 4: David Kim
 
 -   Country: Australia
 
--   Bio: "Creative videographer looking to expand into business content creation and learn about creative strategy and management. Passionate about creating engaging visual content."
+-   Bio: "Creative videographer looking to expand into business content creation."
 
--   Interests: Videography, Business, Management, Development, Health
+-   Interests: Videography, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Management, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -218,11 +218,11 @@ User 4: David Kim
 
 -   Country: Australia
 
--   Bio: "12+ years in videography and creative direction with expertise in creative strategy, team leadership, and business development. Passionate about mentoring creatives and helping them build successful careers."
+-   Bio: "12+ years in videography and creative direction with expertise in creative strategy."
 
--   Interests: Videography, Business, Management, Development, Health
+-   Interests: Videography, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Development, Communication
 
 * * * * *
 
@@ -249,11 +249,11 @@ User 5: Elena Rodriguez
 
 -   Country: Spain
 
--   Bio: "Ambitious hospitality professional looking to advance into management and learn about team leadership, business strategy, and client relationship management."
+-   Bio: "Ambitious hospitality professional looking to advance into management and learn about team leadership."
 
--   Interests: Hospitality, Business, Management, Development, Health
+-   Interests: Hospitality, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Communication
 
 ### Mentor Profile:
 
@@ -275,11 +275,11 @@ User 5: Elena Rodriguez
 
 -   Country: Spain
 
--   Bio: "18+ years in hospitality and management across multiple industries. Expert in building high-performing teams, strategic planning, and international business development."
+-   Bio: "18+ years in hospitality and management across multiple industries."
 
--   Interests: Hospitality, Business, Management, Development, Health
+-   Interests: Hospitality, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Management, Development, Communication, Creativity
 
 * * * * *
 
@@ -306,11 +306,11 @@ User 6: James Wilson
 
 -   Country: United States
 
--   Bio: "Law professional looking to transition into business development and learn about management, strategic planning, and career progression in business."
+-   Bio: "Law professional looking to transition into business development and learn about management."
 
--   Interests: Law, Business, Management, Development, Health
+-   Interests: Law, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -332,11 +332,11 @@ User 6: James Wilson
 
 -   Country: United States
 
--   Bio: "14+ years in law and business development with expertise in legal strategy, team leadership, and business growth. Passionate about mentoring legal professionals and sharing insights from building successful practices."
+-   Bio: "14+ years in law and business development with expertise in legal strategy."
 
--   Interests: Law, Business, Management, Development, Health
+-   Interests: Law, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development
 
 * * * * *
 
@@ -363,11 +363,11 @@ User 7: Aisha Okafor
 
 -   Country: Nigeria
 
--   Bio: "Aspiring entrepreneur looking to advance into business management and learn about leadership, strategic planning, and business development strategies."
+-   Bio: "Aspiring entrepreneur looking to advance into business management and learn about leadership."
 
--   Interests: Entrepreneur, Business, Management, Development, Health
+-   Interests: Entrepreneur, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Management, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -389,11 +389,11 @@ User 7: Aisha Okafor
 
 -   Country: Nigeria
 
--   Bio: "16+ years in entrepreneurship and business development with expertise in business strategy, team leadership, and growth. Passionate about building successful businesses and mentoring entrepreneurs."
+-   Bio: "16+ years in entrepreneurship and business development with expertise in business strategy."
 
--   Interests: Entrepreneur, Business, Management, Development, Health
+-   Interests: Entrepreneur, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development, Communication
 
 * * * * *
 
@@ -420,11 +420,11 @@ User 8: Michael Thompson
 
 -   Country: Canada
 
--   Bio: "Development student looking to advance into development management and learn about project management, team leadership, and development methodologies."
+-   Bio: "Development student looking to advance into development management and learn about project management."
 
--   Interests: Development, Management, Business, Law, Health
+-   Interests: Development, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Development, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -446,11 +446,11 @@ User 8: Michael Thompson
 
 -   Country: Canada
 
--   Bio: "20+ years in development and project management across multiple sectors. Expert in development methodologies, team leadership, and business strategy. Passionate about mentoring developers and sharing best practices."
+-   Bio: "20+ years in development and project management across multiple sectors."
 
--   Interests: Development, Management, Business, Law, Health
+-   Interests: Development, Management, Business
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development, Communication
 
 * * * * *
 
@@ -477,11 +477,11 @@ User 9: Sofia Andersson
 
 -   Country: Sweden
 
--   Bio: "Content writer looking to transition into content strategy and business development. Seeking guidance on content planning, business strategy, and building a personal brand."
+-   Bio: "Content writer looking to transition into content strategy and business development."
 
--   Interests: Content Writing, Business, Management, Development, Health
+-   Interests: Content Writing, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Communication, Creativity, Leadership
 
 ### Mentor Profile:
 
@@ -503,11 +503,11 @@ User 9: Sofia Andersson
 
 -   Country: Sweden
 
--   Bio: "13+ years in content strategy and business development with expertise in content planning, business growth, and brand building. Passionate about mentoring content creators and helping them build successful careers."
+-   Bio: "13+ years in content strategy and business development with expertise in content planning."
 
--   Interests: Content Writing, Business, Management, Development, Health
+-   Interests: Content Writing, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Communication, Creativity
 
 * * * * *
 
@@ -536,9 +536,9 @@ User 10: Rajesh Kumar
 
 -   Bio: "Law professional looking to advance into business development and learn about management, strategic planning, and client relationship management in business."
 
--   Interests: Law, Business, Management, Development, Health
+-   Interests: Law, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Management, Communication, Creativity
 
 ### Mentor Profile:
 
@@ -562,9 +562,9 @@ User 10: Rajesh Kumar
 
 -   Bio: "17+ years in law and business development with expertise in business strategy, team leadership, and client relations. Passionate about mentoring legal professionals and sharing insights from building successful practices."
 
--   Interests: Law, Business, Management, Development, Health
+-   Interests: Law, Business, Management
 
--   Skills: Leadership, Management, Development, Communication, Creativity
+-   Skills: Leadership, Management, Development
 
 ---
 

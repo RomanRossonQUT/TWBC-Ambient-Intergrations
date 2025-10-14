@@ -40,14 +40,20 @@ const GRAY = "#999";
 const TIMESTAMP_GAP_MINUTES = 5;
 
 export default function Conversation({ route }) {
-  const { currentUserId, otherUserId, otherUserName } = route.params;
+  const { currentUserId, currentUserType, otherUserId, otherUserName, otherUserType } = route.params;
   // Interleaved list of {type: 'time', ...} and {type: 'message', ...}
   const [items, setItems] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [imageUri, setImageUri] = useState(null);
   const [sending, setSending] = useState(false);
 
-  const chatId = [currentUserId, otherUserId].sort().join("_");
+  // Create deterministic chat ID that both users will generate the same way
+  const participants = [
+    { userId: currentUserId, profileType: currentUserType },
+    { userId: otherUserId, profileType: otherUserType }
+  ].sort((a, b) => a.userId.localeCompare(b.userId));
+  
+  const chatId = `${participants[0].userId}_${participants[0].profileType}_${participants[1].userId}_${participants[1].profileType}`;
   const navigation = useNavigation();
   const listRef = useRef(null);
 

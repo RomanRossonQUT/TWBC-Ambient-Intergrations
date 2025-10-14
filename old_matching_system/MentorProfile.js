@@ -23,7 +23,7 @@ const MENTORPROFILE = () => {
       <Image
         style={styles.image44Icon}
         contentFit="cover"
-        source={require("../../assets/image-43.png")}
+        source={require("../../assets/default_profile.jpg")}
       />
       <View style={styles.heading1}>
         <View style={styles.frame}>

@@ -68,8 +68,8 @@ export const getAvailableMatches = async (userId, userType, limitCount = 10, las
     const incomingRequestsSnap = await getDocs(incomingRequestsQuery);
     const incomingRequestIds = incomingRequestsSnap.docs.map((doc) => doc.data().from);
 
-    // Combine all excluded user IDs (connections, requests, and already shown matches)
-    const excludedUserIds = [...connectedUserIds, ...sentRequestIds, ...incomingRequestIds, ...excludeIds];
+    // Combine all excluded user IDs (connections, requests, already shown matches, and self)
+    const excludedUserIds = [...connectedUserIds, ...sentRequestIds, ...incomingRequestIds, ...excludeIds, userId];
 
     // Get target profiles, excluding already connected/requested users
     // Simplified query to avoid index requirements

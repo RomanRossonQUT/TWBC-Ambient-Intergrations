@@ -374,7 +374,7 @@ async function retrieveMentors(pid, firstRun, lastDoc, iTagCount, sTagCount) {
 
         if (MentorProfiles.empty) {
             // either no mentor profiles exist, or an error occurred.
-            const msg = "Sorry! Either no mentors exist at this time, or an error has occurred retrieving them. Please try again later.";
+            const msg = "Sorry! No mentors currently available, or an error has occurred retrieving them. Please try again later.";
             console.log("No mentors found in first run");
             return [null, msg];
         }

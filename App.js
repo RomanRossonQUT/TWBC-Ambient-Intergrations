@@ -102,6 +102,7 @@ const App = () => {
     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
     "Roboto-Bold": require("./assets/fonts/Roboto-Bold.ttf"),
+    "NotoSerifTelugu-Bold": require("./assets/fonts/Noto_Serif_Telugu/static/NotoSerifTelugu-Bold.ttf"),
   });
 
   // Avoid flashing unstyled text; render nothing until fonts are ready

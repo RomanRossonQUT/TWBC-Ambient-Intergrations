@@ -339,7 +339,7 @@ const InteractiveMatching = ({ route }) => {
           <Image
             style={styles.profileImage}
             contentFit="cover"
-            source={require("../../assets/image-43.png")}
+            source={require("../../assets/default_profile.jpg")}
           />
           
           <View style={styles.profileDetails}>

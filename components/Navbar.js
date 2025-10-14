@@ -20,14 +20,14 @@ const Navbar = () => {
           style={[styles.navButton, isActive('Home') && styles.activeButton]}
           onPress={() => navigation.navigate('Home', { uid, pid, type })}
         >
-          <Icon name="home" size={24} color={isActive('Home') ? '#ffb6c1' : '#fff'} />
+          <Icon name="home" size={24} color={isActive('Home') ? '#ed469a' : '#fff'} />
         </Pressable>
 
         <Pressable
           style={[styles.navButton, isActive('MentorMatching') && styles.activeButton]}
           onPress={() => navigation.navigate('MentorMatching', { uid, pid, type })}
         >
-          <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ffb6c1' : '#fff'} />
+          <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ed469a' : '#fff'} />
         </Pressable>
 
         {/* Direct Messages (kept) */}
@@ -35,7 +35,7 @@ const Navbar = () => {
           style={[styles.navButton, isActive('MessageInbox') && styles.activeButton]}
           onPress={() => navigation.navigate('MessageInbox', { uid, pid, type })}
         >
-          <Icon name="comments" size={24} color={isActive('MessageInbox') ? '#ffb6c1' : '#fff'} />
+          <Icon name="comments" size={24} color={isActive('MessageInbox') ? '#ed469a' : '#fff'} />
         </Pressable>
 
         {/* Forums (new) */}
@@ -44,14 +44,14 @@ const Navbar = () => {
           onPress={() => navigation.navigate('ForumsHome', { uid, pid, type })}
         >
           {/* use a different icon so it doesn't look like DMs */}
-          <Icon name="comments-o" size={24} color={isActive('ForumsHome') ? '#ffb6c1' : '#fff'} />
+          <Icon name="comments-o" size={24} color={isActive('ForumsHome') ? '#ed469a' : '#fff'} />
         </Pressable>
 
         <Pressable
           style={[styles.navButton, isActive('UserProfile') && styles.activeButton]}
           onPress={() => navigation.navigate('UserProfile', { uid, pid, type })}
         >
-          <Icon name="user" size={24} color={isActive('UserProfile') ? '#ffb6c1' : '#fff'} />
+          <Icon name="user" size={24} color={isActive('UserProfile') ? '#ed469a' : '#fff'} />
         </Pressable>
       </View>
     );
@@ -64,14 +64,14 @@ const Navbar = () => {
         style={[styles.navButton, isActive('Home') && styles.activeButton]}
         onPress={() => navigation.navigate('Home', { uid, pid, type })}
       >
-        <Icon name="home" size={24} color={isActive('Home') ? '#ffb6c1' : '#fff'} />
+        <Icon name="home" size={24} color={isActive('Home') ? '#ed469a' : '#fff'} />
       </Pressable>
 
       <Pressable
         style={[styles.navButton, isActive('MentorMatching') && styles.activeButton]}
         onPress={() => navigation.navigate('MentorMatching', { uid, pid, type })}
       >
-        <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ffb6c1' : '#fff'} />
+        <Icon name="users" size={24} color={isActive('MentorMatching') ? '#ed469a' : '#fff'} />
       </Pressable>
 
       {/* Direct Messages (kept) */}
@@ -79,7 +79,7 @@ const Navbar = () => {
         style={[styles.navButton, isActive('MessageInbox') && styles.activeButton]}
         onPress={() => navigation.navigate('MessageInbox', { uid, pid, type })}
       >
-        <Icon name="comments" size={24} color={isActive('MessageInbox') ? '#ffb6c1' : '#fff'} />
+        <Icon name="comments" size={24} color={isActive('MessageInbox') ? '#ed469a' : '#fff'} />
       </Pressable>
 
       {/* Forums (new) */}
@@ -87,14 +87,14 @@ const Navbar = () => {
         style={[styles.navButton, isActive('ForumsHome') && styles.activeButton]}
         onPress={() => navigation.navigate('ForumsHome', { uid, pid, type })}
       >
-        <Icon name="comments-o" size={24} color={isActive('ForumsHome') ? '#ffb6c1' : '#fff'} />
+        <Icon name="comments-o" size={24} color={isActive('ForumsHome') ? '#ed469a' : '#fff'} />
       </Pressable>
 
       <Pressable
         style={[styles.navButton, isActive('UserProfile') && styles.activeButton]}
         onPress={() => navigation.navigate('UserProfile', { uid, pid, type })}
       >
-        <Icon name="user" size={24} color={isActive('UserProfile') ? '#ffb6c1' : '#fff'} />
+        <Icon name="user" size={24} color={isActive('UserProfile') ? '#ed469a' : '#fff'} />
       </Pressable>
     </View>
   );
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   navButton: { padding: 10 },
-  activeButton: { backgroundColor: '#ffe4e1', borderRadius: 10 },
+  activeButton: { backgroundColor: '#fce4ec', borderRadius: 10 },
 });
 
 export default Navbar;

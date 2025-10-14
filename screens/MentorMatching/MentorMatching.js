@@ -57,6 +57,7 @@ const MentorMatching = () => {
   const [processing, setProcessing] = useState(false);
   const [noMoreMatches, setNoMoreMatches] = useState(false);
   const [shownMatchIds, setShownMatchIds] = useState([]); // Track shown matches
+  const [declinedMatches, setDeclinedMatches] = useState([]); // Track declined matches for go back
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   // Current match data
@@ -158,6 +159,10 @@ const MentorMatching = () => {
       setProcessing(true);
       await declineMatch(uid, currentMatch.userID);
       console.log(`[DATA] ${userType} ${uid} declined ${targetType} ${currentMatch.userID}`);
+      
+      // Add to declined matches for go back functionality
+      setDeclinedMatches(prev => [...prev, currentMatch]);
+      
       moveToNextMatch();
     } catch (error) {
       console.error("[ERROR] Error declining match:", error);
@@ -234,6 +239,29 @@ const MentorMatching = () => {
     return "Low Match";
   };
 
+  const roundUpCompatibility = (score) => {
+    // Round up to the nearest 10
+    return Math.ceil(score / 10) * 10;
+  };
+
+  const handleGoBack = () => {
+    if (declinedMatches.length === 0) return;
+    
+    // Get the most recently declined match
+    const lastDeclinedMatch = declinedMatches[declinedMatches.length - 1];
+    
+    // Remove it from declined matches
+    setDeclinedMatches(prev => prev.slice(0, -1));
+    
+    // Set it as the current match
+    setCurrentMatch(lastDeclinedMatch);
+    
+    // Remove it from shown matches if it was there
+    setShownMatchIds(prev => prev.filter(id => id !== lastDeclinedMatch.userID));
+    
+    console.log(`[DATA] Going back to ${lastDeclinedMatch.firstName} ${lastDeclinedMatch.lastName}`);
+  };
+
   if (loading && suggestedMatches.length === 0) {
     return (
       <View style={styles.loadingContainer}>
@@ -247,7 +275,7 @@ const MentorMatching = () => {
     return (
       <View style={styles.container}>
         <View style={styles.noMentorsContainer}>
-          <Text style={styles.noMentorsTitle}>No More {targetRoleText}s Available</Text>
+          <Text style={styles.noMentorsTitle}>No {targetRoleText}s currently available.</Text>
           <Text style={styles.noMentorsText}>
             You've seen all available {targetRoleText}s! Check back later as new {targetRoleText}s join our platform.
           </Text>
@@ -313,7 +341,7 @@ const MentorMatching = () => {
           <ExpoImage
             style={styles.profileImage}
             contentFit="cover"
-            source={require("../../assets/image-43.png")}
+            source={require("../../assets/default_profile.jpg")}
           />
           
           <View style={styles.profileInfo}>
@@ -355,6 +383,19 @@ const MentorMatching = () => {
           <Skills interests={displaySkills} title="Skills" propHeight="unset" />
         )}
 
+        {/* Go Back Button */}
+        {declinedMatches.length > 0 && (
+          <View style={styles.goBackContainer}>
+            <TouchableOpacity 
+              style={styles.goBackButton}
+              onPress={handleGoBack}
+              disabled={processing}
+            >
+              <Text style={styles.goBackButtonText}>← Go Back</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           <TouchableOpacity 
@@ -373,7 +414,7 @@ const MentorMatching = () => {
               { backgroundColor: getCompatibilityColor(currentMatch.compatibilityScore) }
             ]}>
               <Text style={styles.compatibilityScore}>
-                {currentMatch.compatibilityScore}%
+                {roundUpCompatibility(currentMatch.compatibilityScore)}%
               </Text>
             </View>
             <Text style={styles.compatibilityText}>
@@ -526,6 +567,22 @@ const styles = StyleSheet.create({
     color: "#666",
     flex: 1,
     textAlign: "right",
+  },
+  goBackContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  goBackButton: {
+    backgroundColor: "#6b7280",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: "center",
+  },
+  goBackButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   actionButtonsContainer: {
     flexDirection: "row",

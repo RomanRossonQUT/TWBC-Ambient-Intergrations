@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   businessHighlight: {
     color: "#ed469a",
-    fontWeight: "900",
+    fontFamily: "NotoSerifTelugu-Bold",
   },
   learnFromAmazing: {
     fontSize: 28,

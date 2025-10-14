@@ -42,7 +42,7 @@ const BORDER = "#e8e8ef";
 const MessageInbox = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { uid } = route.params ?? {};
+  const { uid, type } = route.params ?? {};
 
   const [connections, setConnections] = useState([]);
   const [search, setSearch] = useState("");
@@ -70,7 +70,9 @@ const MessageInbox = () => {
       connSnapshot.docs.forEach((docSnap) => {
         const data = docSnap.data();
         const otherId = data.userIds.find((id) => id !== uid);
-        if (otherId) {
+        
+        // Only include connections where the current user's profile type matches
+        if (otherId && data.profileTypes?.[uid] === type) {
           connectedUserIds.push(otherId);
           connectedUserNames[otherId] = data.userNames?.[otherId] || "";
         }
@@ -88,8 +90,19 @@ const MessageInbox = () => {
         allUsers
           .filter((u) => connectedUserIds.includes(u.id))
           .map(async (u) => {
-            // Get the most recent message between these two users
-            const chatId = [uid, u.id].sort().join('_');
+            // Find the connection data for this user to get their profile type
+            const connectionData = connSnapshot.docs.find(doc => 
+              doc.data().userIds.includes(u.id) && doc.data().profileTypes?.[uid] === type
+            )?.data();
+            
+            // Create deterministic chat ID that both users will generate the same way
+            const otherUserType = connectionData?.profileTypes?.[u.id] || 'Unknown';
+            const participants = [
+              { userId: uid, profileType: type },
+              { userId: u.id, profileType: otherUserType }
+            ].sort((a, b) => a.userId.localeCompare(b.userId));
+            
+            const chatId = `${participants[0].userId}_${participants[0].profileType}_${participants[1].userId}_${participants[1].profileType}`;
             const messagesQuery = query(
               collection(db, "chats", chatId, "messages"),
               orderBy("timestamp", "desc"),
@@ -126,6 +139,7 @@ const MessageInbox = () => {
                 "Unknown User",
               lastMessage,
               unreadCount,
+              otherUserType: connectionData?.profileTypes?.[u.id] || 'Unknown',
             };
           })
       );
@@ -146,11 +160,13 @@ const MessageInbox = () => {
     return rows;
   }, [connections, search, activeFilter]);
 
-  const handleOpenChat = (otherUserId, otherUserName) => {
+  const handleOpenChat = (otherUserId, otherUserName, otherUserType) => {
     navigation.navigate("Conversation", {
       currentUserId: uid,
+      currentUserType: type,
       otherUserId,
       otherUserName,
+      otherUserType,
     });
   };
 
@@ -164,7 +180,7 @@ const MessageInbox = () => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.chatCard}
-      onPress={() => handleOpenChat(item.id, item.name)}
+      onPress={() => handleOpenChat(item.id, item.name, item.otherUserType)}
     >
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{initials(item.name)}</Text>
@@ -200,7 +216,7 @@ const MessageInbox = () => {
         <Text style={styles.title}>Messages</Text>
         <Pressable
           style={styles.headerBtn}
-          onPress={() => navigation.navigate("DiscoverConnections", { uid })}
+          onPress={() => navigation.navigate("DiscoverConnections", { uid, type })}
         >
           <Icon name="account-plus" size={22} color={PINK} />
         </Pressable>
@@ -260,7 +276,7 @@ const MessageInbox = () => {
       {/* Floating Compose Button */}
       {/* <Pressable
         style={styles.fab}
-        onPress={() => navigation.navigate("DiscoverConnections", { uid })}
+        onPress={() => navigation.navigate("DiscoverConnections", { uid, type })}
       >
         <Icon name="message-plus" size={26} color="#fff" />
       </Pressable> */}

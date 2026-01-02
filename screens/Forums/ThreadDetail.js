@@ -31,6 +31,7 @@ import {
   serverTimestamp,
   doc,
   updateDoc,
+  getDocs,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
@@ -50,6 +51,8 @@ export default function ThreadDetail() {
   const [posts, setPosts] = useState([]);
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
+  const [userNames, setUserNames] = useState({}); // Cache for user names
+  const [currentUserName, setCurrentUserName] = useState(""); // Current user's name
 
   // selected image for this reply
   const [imageUri, setImageUri] = useState(null);
@@ -58,6 +61,56 @@ export default function ThreadDetail() {
   useEffect(() => {
     navigation.setOptions({ title: title || "Thread" });
   }, [title]);
+
+  // Function to fetch user name by user ID
+  const fetchUserName = async (userId) => {
+    if (userNames[userId]) return userNames[userId]; // Return cached name if available
+
+    try {
+      // First try to find a profile that matches both userID and type
+      const profileQuery = query(
+        collection(db, "Profiles"),
+        where("userID", "==", userId),
+        where("type", "==", type)
+      );
+      const profileSnapshot = await getDocs(profileQuery);
+      
+      if (!profileSnapshot.empty) {
+        const profileData = profileSnapshot.docs[0].data();
+        const userName = `${profileData.firstName} ${profileData.lastName}`;
+        setUserNames((prev) => ({ ...prev, [userId]: userName }));
+        return userName;
+      }
+      
+      // If no profile found with matching type, fall back to any profile with that userID
+      const fallbackQuery = query(
+        collection(db, "Profiles"),
+        where("userID", "==", userId)
+      );
+      const fallbackSnapshot = await getDocs(fallbackQuery);
+      if (!fallbackSnapshot.empty) {
+        const profileData = fallbackSnapshot.docs[0].data();
+        const userName = `${profileData.firstName} ${profileData.lastName}`;
+        setUserNames((prev) => ({ ...prev, [userId]: userName }));
+        return userName;
+      } else {
+        console.warn(`Profile not found for userID: ${userId}`);
+      }
+    } catch (error) {
+      console.error(`Error fetching user name for userID: ${userId}`, error);
+    }
+
+    return "Unknown User";
+  };
+
+  // Load current user's name on component mount
+  useEffect(() => {
+    const loadCurrentUserName = async () => {
+      const userName = await fetchUserName(uid);
+      setCurrentUserName(userName);
+    };
+    loadCurrentUserName();
+  }, [uid, type]);
 
   // Load posts
   useEffect(() => {
@@ -122,7 +175,7 @@ export default function ThreadDetail() {
         text: text || "",
         imageUrl: imageUrl || null,
         createdBy: uid,
-        creatorName: "You", // replace with profile name if you have it
+        creatorName: currentUserName || "User",
         createdAt: serverTimestamp(),
       });
 
@@ -140,24 +193,36 @@ export default function ThreadDetail() {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.postCard}>
-      <View style={styles.postHeader}>
-        <Text style={styles.postAuthor}>{item.creatorName || "User"}</Text>
-        <Text style={styles.postTime}>{timeAgo(item.createdAt)}</Text>
+  const renderItem = ({ item }) => {
+    // If the post doesn't have a creatorName or it's "You", fetch the actual name
+    const displayName = item.creatorName && item.creatorName !== "You" 
+      ? item.creatorName 
+      : userNames[item.createdBy] || "User";
+
+    // Fetch name for posts that don't have it cached
+    if (!userNames[item.createdBy] && item.createdBy && item.creatorName !== "You") {
+      fetchUserName(item.createdBy);
+    }
+
+    return (
+      <View style={styles.postCard}>
+        <View style={styles.postHeader}>
+          <Text style={styles.postAuthor}>{displayName}</Text>
+          <Text style={styles.postTime}>{timeAgo(item.createdAt)}</Text>
+        </View>
+
+        {item.text ? <Text style={styles.postText}>{item.text}</Text> : null}
+
+        {item.imageUrl ? (
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={styles.postImage}
+            resizeMode="cover"
+          />
+        ) : null}
       </View>
-
-      {item.text ? <Text style={styles.postText}>{item.text}</Text> : null}
-
-      {item.imageUrl ? (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.postImage}
-          resizeMode="cover"
-        />
-      ) : null}
-    </View>
-  );
+    );
+  };
 
   const listEmpty = (
     <View style={{ paddingTop: 32, alignItems: "center" }}>
